@@ -1,0 +1,29 @@
+project(ClientApp)
+cmake_minimum_required(VERSION 3.0)
+
+
+set(ClientHeaders
+	ChatClient.h
+	)
+set(ClientSources
+	ChatClient.cpp
+	main.cpp
+	)
+
+
+message(STATUS "${PROJECT_NAME} added: ${ClientHeaders} ${ClientSources}")
+add_executable(${PROJECT_NAME} ${ClientHeaders} ${ClientSources})
+SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C++)
+
+source_group("Client\\Headers" FILES ${ClientHeaders})
+source_group("Client\\Sources" FILES ${ClientSources})
+
+if(Boost_FOUND)
+message(STATUS "Boost Include Dirs:${Boost_INCLUDE_DIRS}")
+include_directories(${Boost_INCLUDE_DIRS})
+message(STATUS "Boost Libraries:${Boost_LIBRARIES}")
+target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
+else()
+message(FATAL_ERROR "Can't find boost!")
+endif()
+
