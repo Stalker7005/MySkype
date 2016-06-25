@@ -1,0 +1,6 @@
+namespace NetworkUtils{
+class ChatMessage
+{
+	
+};
+}
