@@ -1,7 +1,6 @@
 project(ClientApp)
 cmake_minimum_required(VERSION 3.0)
 
-
 set(ClientHeaders
 	ChatClient.h
 	)
@@ -10,10 +9,9 @@ set(ClientSources
 	main.cpp
 	)
 
-
 message(STATUS "${PROJECT_NAME} added: ${ClientHeaders} ${ClientSources}")
 add_executable(${PROJECT_NAME} ${ClientHeaders} ${ClientSources})
-SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C++)
+#SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C++ LINK_FLAGS DEBUG)
 
 source_group("Client\\Headers" FILES ${ClientHeaders})
 source_group("Client\\Sources" FILES ${ClientSources})

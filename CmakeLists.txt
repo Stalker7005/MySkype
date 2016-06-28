@@ -8,6 +8,7 @@ set(CMAKE_VERBOSE_MAKEFILE true)
 if(WIN32)
 message(STATUS "Configuration for Windows...")
 if(MSVC)
+	message(STATUS "Set static runtime...")
 	#set static runtime
 	FOREACH(flag_var CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO
 			CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO)
@@ -23,10 +24,10 @@ message("Looking for boost...")
 
 set(Boost_USE_STATIC_LIBS        ON) # only find static libs
 set(Boost_USE_MULTITHREADED      ON)
-set(Boost_USE_STATIC_RUNTIME    OFF)
+set(Boost_USE_STATIC_RUNTIME    ON)
 set(BOOST_ROOT  "D:\\Libs\\boost_1_60_0")
 set(BOOST_LIBRARYDIR ${BOOST_ROOT}\\stage\\lib)
-find_package(Boost 1.60.0 REQUIRED COMPONENTS system thread)
+find_package(Boost 1.60.0 COMPONENTS system date_time regex thread chrono REQUIRED)
 if(Boost_FOUND)
     message(STATUS "Boost found...")
 else()
@@ -41,3 +42,4 @@ endif(UNIX)
 add_subdirectory(Client)
 add_subdirectory(Server)
 add_subdirectory(NetworkUtilsLib)
+

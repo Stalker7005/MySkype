@@ -13,7 +13,8 @@ class ChatClient
 {
 public:
     using TIOService = boost::asio::io_service;
-    using TEndPointIter = boost::asio::ip::tcp::resolver::iterator;
+    using TTCPResolver = boost::asio::ip::tcp::resolver;
+    using TEndPointIter = TTCPResolver::iterator;
     using TTCPSocket = boost::asio::ip::tcp::socket;
 
 public:
@@ -29,15 +30,23 @@ public:
     void Close();
 
     void PostMessage(const NetworkUtils::ChatMessage& message);
-    NetworkUtils::ChatMessage GetLastMessage();
+    NetworkUtils::ChatMessage GetFirsttMessage();
 
     void PostMessages(const std::deque<NetworkUtils::ChatMessage>& messages);
     std::deque<NetworkUtils::ChatMessage> GetMessages();
 
+protected:
+    void DoConnect(TEndPointIter endPointIter);
+    void DoReadHeader();
+    void DoReadBody();
+    void DoWrite();
+
 private:
+    char readBuf[500];
+    char writeBuf[500];
     TIOService& io_service;
-    TTCPSocket tpcSocket;
-    std::unique_ptr<TIOService::strand> m_strand;
+    TTCPSocket tcpSocket;
+    std::unique_ptr<TIOService::strand> strand;
     std::deque<NetworkUtils::ChatMessage> inputMessagesQueue;
     std::deque<NetworkUtils::ChatMessage> outputMessagesQueue;
 };
