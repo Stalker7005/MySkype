@@ -2,11 +2,10 @@ project(ClientApp)
 cmake_minimum_required(VERSION 3.0)
 
 set(ClientHeaders
-	ChatClient.h
+	Client.h
 	)
 set(ClientSources
-	ChatClient.cpp
-	main.cpp
+	Client.cpp
 	)
 
 message(STATUS "${PROJECT_NAME} added: ${ClientHeaders} ${ClientSources}")
