@@ -54,6 +54,7 @@ void Client::DoReadHeader()
             socket.close();
         }
     });
+
 }
 
 void Client::DoReadBody()

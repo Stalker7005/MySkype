@@ -3,10 +3,13 @@ cmake_minimum_required(VERSION 3.0)
 set(ServerHeaders
 	Server.h
 	Session.h
+    IUser.h
+    UsersGroup.h
 	)
 set(ServerSources
 	Server.cpp
 	Session.cpp
+    UsersGroup.cpp
 	)
 	
 source_group("Server\\Headers" FILES ${ServerHeaders})

@@ -1,53 +1,46 @@
-//// chat_server.cpp
-//// ~~~~~~~~~~~~~~~
-////
-//// Copyright (c) 2003-2015 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-////
-//// Distributed under the Boost Software License, Version 1.0. (See accompanying
-//// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-////
-//
-//#include <cstdlib>
-//#include <deque>
-//#include <iostream>
-//#include <list>
-//#include <memory>
-//#include <set>
-//#include <utility>
-//#include <cstdint>
-//#include <boost/asio.hpp>
-//#include <boost/uuid/uuid.hpp>
-//#include <unordered_map>
-//#include "ChatMessage.h"
-//
-//using boost::asio::ip::tcp;
-//
-//class ClientsConteiner
+#include "Server.h"
+#include <cstdlib>
+#include <deque>
+#include <iostream>
+#include <memory>
+#include <utility>
+#include <cstdint>
+#include <unordered_map>
+
+#include <boost/asio.hpp>
+#include <boost/functional/hash.hpp>
+
+#include "NetworkMessage.h"
+#include "NetworkDefs.h"
+#include "ChatMessage.h"
+#include "IUser.h"
+#include "UsersGroup.h"
+
+using boost::asio::ip::tcp;
+
+
+
+//class Session: public IUser,
+//               public std::enable_shared_from_this<Session>
 //{
 //public:
-//    
-//private:
-//    
-//};
-//class Session: public std::enable_shared_from_this<Session>
-//{
-//public:
-//    Session(tcp::socket socket)
-//        : socket_(std::move(socket))
+//    Session(tcp::socket socket, UsersGroup& users): 
+//    m_socket(std::move(socket)),
+//    m_users(users)
 //    {
 //    }
 //
 //    void Start()
 //    {
-//        /*room_.join(shared_from_this());*/
 //        DoReadHeader();
 //    }
 //
-//    void Deliver(const NetworkUtils::ChatMessage& msg)
+//    void Deliver(const std::shared_ptr<NetworkUtils::NetworkMessage>& message) override
 //    {
-//        /*bool write_in_progress = !write_msgs_.empty();*/
-//        /*write_msgs_.push_back(msg);*/
-//        if (!write_in_progress)
+//        bool write_in_progress = !m_ouputMessages.empty();
+//        m_ouputMessages.emplace_back(message);
+//
+//        if (!m_writeInProgress)
 //        {
 //            DoWrite();
 //        }
@@ -57,17 +50,17 @@
 //    void DoReadHeader()
 //    {
 //        auto self(shared_from_this());
-//        boost::asio::async_read(socket_,
-//            boost::asio::buffer(read_msg_.data(), NetworkUtils::ChatMessage::header_length),
+//        boost::asio::async_read(m_socket,
+//            boost::asio::buffer(m_inputMessages.data(), NetworkUtils::ChatMessage::header_length),
 //            [this, self](boost::system::error_code ec, std::size_t /*length*/)
 //        {
-//            if (!ec && read_msg_.decode_header())
+//            if (!ec)
 //            {
 //                DoReadBody();
 //            }
 //            else
 //            {
-//                /*room_.leave(shared_from_this());*/
+//                //Leave logic
 //            }
 //        });
 //    }
@@ -75,8 +68,8 @@
 //    void DoReadBody()
 //    {
 //        auto self(shared_from_this());
-//        boost::asio::async_read(socket_,
-//            boost::asio::buffer(read_msg_.body(), read_msg_.body_length()),
+//        boost::asio::async_read(m_socket,
+//            boost::asio::buffer(m_inputMessages.body(), m_inputMessages.body_length()),
 //            [this, self](boost::system::error_code ec, std::size_t /*length*/)
 //        {
 //            if (!ec)
@@ -86,73 +79,77 @@
 //            }
 //            else
 //            {
-//                /*room_.leave(shared_from_this());*/
+//                //Leave logic
 //            }
 //        });
 //    }
 //
 //    void DoWrite()
 //    {
-//       /* auto self(shared_from_this());
-//        boost::asio::async_write(socket_,
-//            boost::asio::buffer(write_msgs_.front().data(),
-//                write_msgs_.front().length()),*/
+//        auto self(shared_from_this());
+//        boost::asio::async_write(m_socket,
+//            boost::asio::buffer(m_ouputMessages.front().data(),
+//                m_ouputMessages.front()->length()),
 //            [this, self](boost::system::error_code ec, std::size_t /*length*/)
 //        {
 //            if (!ec)
 //            {
-//                /* write_msgs_.pop_front();
-//                 if (!write_msgs_.empty())
-//                 {
-//                     DoWrite();
-//                 }*/
+//                m_ouputMessages.pop_front();
+//                if (!m_ouputMessages.empty())
+//                {
+//                    DoWrite();
+//                }
 //            }
 //            else
 //            {
-//                /*room_.leave(shared_from_this());*/
+//                //Leave logic
 //            }
 //        });
-//    }
-//
-//    tcp::socket socket_;
-//    NetworkUtils::ChatMessage read_msg_;
-//   /* chat_message_queue write_msgs_;*/
-//};
-//
-////----------------------------------------------------------------------
-//
-//class chat_server
-//{
-//public:
-//    chat_server(boost::asio::io_service& io_service,
-//        const tcp::endpoint& endpoint)
-//        : acceptor_(io_service, endpoint),
-//        socket_(io_service)
-//    {
-//        do_accept();
 //    }
 //
 //private:
-//    void do_accept()
-//    {
-//        acceptor_.async_accept(socket_,
-//            [this](boost::system::error_code ec)
-//        {
-//            if (!ec)
-//            {
-//                std::make_shared<Session>(std::move(socket_), room_)->start();
-//            }
-//
-//            do_accept();
-//        });
-//    }
-//
-//    tcp::acceptor acceptor_;
-//    tcp::socket socket_;
-//   /* chat_room room_;*/
+//    UsersGroup& m_users;
+//    bool m_writeInProgress;
+//    tcp::socket m_socket;
+//    
+//    std::deque<std::shared_ptr<NetworkUtils::NetworkMessage>> m_ouputMessages;
+//    std::deque<std::shared_ptr<NetworkUtils::NetworkMessage>> m_inputMessages;
 //};
 
 //----------------------------------------------------------------------
+
+class chat_server
+{
+public:
+    chat_server(boost::asio::io_service& ioService,
+        const tcp::endpoint& endpoint)
+        : m_acceptor(ioService, endpoint),
+        m_socket(ioService),
+        m_usersGroup(std::make_shared<UsersGroup>())
+    {
+        do_accept();
+    }
+
+private:
+    void do_accept()
+    {
+        m_acceptor.async_accept(m_socket,
+            [this](boost::system::error_code ec)
+        {
+            if (!ec)
+            {
+                /*auto session = std::make_shared<Session>(std::move(m_socket));
+                session->Start();*/
+            }
+
+            do_accept();
+        });
+    }
+
+    tcp::acceptor m_acceptor;
+    tcp::socket m_socket;
+    std::shared_ptr<UsersGroup> m_usersGroup;
+};
 
 int main(int argc, char* argv[])
 {
