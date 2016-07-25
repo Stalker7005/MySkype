@@ -3,11 +3,15 @@ cmake_minimum_required(VERSION 3.0)
 
 set(MessagesHeaders
     NetworkMessage.h
+    Ping.h
+    Pong.h
 	ChatMessage.h
 	)
 	
 set(MessagesSources
     NetworkMessage.cpp
+    Ping.cpp
+    Pong.cpp
 	ChatMessage.cpp
 	)
 	
@@ -42,7 +46,9 @@ message(FATAL_ERROR "Can't find boost!")
 endif()
 
 include_directories(
+					"D:/Libs/cereal/include"
 					${Boost_INCLUDE_DIRS}
 				    )
 
 add_library(${PROJECT_NAME} STATIC ${HeadersLst} ${SourcesLst})
+

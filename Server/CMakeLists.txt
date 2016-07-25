@@ -26,10 +26,12 @@ endif()
 include_directories(
 					${Boost_INCLUDE_DIRS}
 					../NetworkUtilsLib
+                    ../BaseObjects
 				    )
 
 message(STATUS "Boost Libraries:${Boost_LIBRARIES}")
 target_link_libraries(${PROJECT_NAME} 
 					  ${Boost_LIBRARIES} 
 					  NetworkUtilsLib
+                      BaseObjects
 					  )
