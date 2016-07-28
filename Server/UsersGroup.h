@@ -4,7 +4,6 @@
 #include <boost/functional/hash.hpp>
 #include "NetworkMessage.h"
 #include "NetworkDefs.h"
-#include "ChatMessage.h"
 #include "IUser.h"
 
 class UsersGroup

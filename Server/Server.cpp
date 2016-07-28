@@ -14,10 +14,9 @@
 
 #include "NetworkMessage.h"
 #include "NetworkDefs.h"
-#include "ChatMessage.h"
 #include "IUser.h"
 #include "UsersGroup.h"
-#include "Blob.h"
+#include "Serealizer.h"
 
 using boost::asio::ip::tcp;
 
@@ -29,8 +28,10 @@ class Session: public IUser,
 public:
     Session(tcp::socket socket, std::shared_ptr<UsersGroup>& users): 
     m_socket(std::move(socket)),
-    m_users(users)
+    m_users(users),
+    m_serializer(std::make_shared<Serialization::Serializer>(Serialization::Serializer::Type::BINARY))
     {
+
     }
 
     void Start()
@@ -60,7 +61,7 @@ private:
         {
             if (!ec)
             {
-                auto headerMessage = Deserialize(m_header);
+                auto headerMessage = Deserialize(m_header, NetworkUtils::NetworkMessage::Type::HEADER);
                 auto bodySize = headerMessage->GetMessageSize();
                 auto messageType = headerMessage->GetType();
                 DoReadBody(bodySize, messageType);
@@ -77,11 +78,11 @@ private:
         auto self(shared_from_this());
         boost::asio::async_read(m_socket,
             m_body, boost::asio::transfer_exactly(bodySize),
-            [this, self](boost::system::error_code ec, std::size_t /*length*/)
+            [this, self, msgType](boost::system::error_code ec, std::size_t /*length*/)
         {
             if (!ec)
             {
-                auto resultMessage = Deserialize(m_body);
+                auto resultMessage = Deserialize(m_body, msgType);
 
                 DoReadHeader();
             }
@@ -94,51 +95,52 @@ private:
 
     void DoWrite()
     {
-        //auto message = m_ouputMessages.
-        //auto self(shared_from_this());
-        //boost::asio::async_write(m_socket,
-        //    ,
-        //    [this, self](boost::system::error_code ec, std::size_t /*length*/)
-        //{
-        //    if (!ec)
-        //    {
-        //        m_ouputMessages.pop_front();
-        //        if (!m_ouputMessages.empty())
-        //        {
-        //            DoWrite();
-        //        }
-        //    }
-        //    else
-        //    {
-        //        //Leave logic
-        //    }
-        //});
+        auto message = m_ouputMessages.front();
+        auto& writeBuf = boost::asio::streambuf();
+        auto& buf = Serialize(message, writeBuf);
+
+        auto self(shared_from_this());
+        boost::asio::async_write(m_socket,
+            buf,
+            [this, self](boost::system::error_code ec, std::size_t /*length*/)
+        {
+            if (!ec)
+            {
+                m_ouputMessages.pop_front();
+                if (!m_ouputMessages.empty())
+                {
+                    DoWrite();
+                }
+            }
+            else
+            {
+                //Leave logic
+            }
+        });
     }
 
-    void Serialize(const std::shared_ptr<NetworkUtils::NetworkMessage>& message)
+    boost::asio::streambuf& Serialize(const std::shared_ptr<NetworkUtils::NetworkMessage>& message, boost::asio::streambuf& buf)
     {
-        m_archiveStream.clear();
-        m_archiveStream.str("");
-
-        cereal::BinaryOutputArchive outputArchive(m_archiveStream);
+        std::ostream outputArchiveStream(&buf);
+        cereal::BinaryOutputArchive outputArchive(outputArchiveStream);
         outputArchive(message);
 
+        return buf;
     }
-    std::shared_ptr<NetworkUtils::NetworkMessage> Deserialize(boost::asio::streambuf& data)
-    {
-        m_archiveStream << &data;
-        cereal::BinaryInputArchive inputArchive(m_archiveStream);
-        auto messagePtr = std::make_shared<NetworkUtils::NetworkMessage>();
-        inputArchive(messagePtr);
 
-        m_archiveStream.clear();
-        m_archiveStream.str("");
+    std::shared_ptr<NetworkUtils::NetworkMessage> Deserialize(boost::asio::streambuf& data, NetworkUtils::NetworkMessage::Type type)
+    {
+        std::stringstream inputStream;
+        inputStream << &data;
+
+        cereal::BinaryInputArchive inputArchive(inputStream);
+        auto messagePtr = NetworkUtils::NetworkMessage::Create(type);
+        inputArchive(messagePtr);
 
         return messagePtr;
     }
 
 private:
-    std::stringstream m_archiveStream;
 
     boost::asio::streambuf m_header;
     boost::asio::streambuf m_body;
@@ -146,6 +148,7 @@ private:
     std::shared_ptr<UsersGroup>& m_users;
     bool m_writeInProgress;
     tcp::socket m_socket;
+    std::shared_ptr<Serialization::Serializer> m_serializer;
 
     std::deque<std::shared_ptr<NetworkUtils::NetworkMessage>> m_ouputMessages;
     std::deque<std::shared_ptr<NetworkUtils::NetworkMessage>> m_inputMessages;
@@ -171,8 +174,8 @@ private:
         {
             if (!ec)
             {
-               /* auto session = std::make_shared<Session>(std::move(m_socket), m_usersGroup);
-                session->Start();*/
+                auto session = std::make_shared<Session>(std::move(m_socket), m_usersGroup);
+                session->Start();
             }
 
             DoAccept();
@@ -187,7 +190,7 @@ private:
 
 int main(int argc, char* argv[])
 {
-   /* try
+    try
     {
         if (argc < 2)
         {
@@ -209,7 +212,7 @@ int main(int argc, char* argv[])
     catch (std::exception& e)
     {
         std::cerr << "Exception: " << e.what() << "\n";
-    }*/
+    }
 
     return 0;
 }

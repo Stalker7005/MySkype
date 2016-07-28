@@ -9,6 +9,9 @@ std::shared_ptr<NetworkMessage> NetworkMessage::Create(Type type)
 
     switch (type)
     {
+    case NetworkUtils::NetworkMessage::Type::HEADER:
+        message = std::make_shared<NetworkMessage>();
+        break;
     case NetworkUtils::NetworkMessage::Type::PING:
         message = std::make_shared<Ping>();
         break;
@@ -59,7 +62,7 @@ m_size(0)
 {}
 
 NetworkMessage::NetworkMessage():
-m_type(static_cast<std::uint8_t>(NetworkMessage::Type::INVALID_TYPE)),
+m_type(static_cast<std::uint8_t>(NetworkMessage::Type::HEADER)),
 m_size(0)
 {
 

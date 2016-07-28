@@ -1,15 +1,15 @@
 #include "Client.h"
 
 Client::Client(boost::asio::io_service& io_service, tcp::resolver::iterator endpointIterator) : 
-io_service(io_service),
+m_io_service(io_service),
 m_socket(io_service)
 {
     DoConnect(endpointIterator);
 }
 
-void Client::Write(const std::shared_ptr<NetworkUtils::NetworkMessage>& msg)
+void Client::Write(const std::shared_ptr<NetworkUtils::NetworkMessage> msg)
 {
-    auto handler = [this, msg]()
+    m_io_service.post([this, msg]()
     {
         bool writeInProgress = !m_outputMessages.empty();
         m_outputMessages.push_back(msg);
@@ -17,14 +17,12 @@ void Client::Write(const std::shared_ptr<NetworkUtils::NetworkMessage>& msg)
         {
             DoWrite();
         }
-    };
-
-    io_service.post(handler);
+    });
 }
 
 void Client::Close()
 {
-    io_service.post([this]() { m_socket.close(); });
+    m_io_service.post([this]() { m_socket.close(); });
 }
 
 void Client::DoConnect(tcp::resolver::iterator endpoint_iterator)
@@ -41,18 +39,19 @@ void Client::DoConnect(tcp::resolver::iterator endpoint_iterator)
 
 void Client::DoReadHeader()
 {
-    auto headerSize = NetworkUtils::NetworkMessage::GetHeaderSize();
+    char buf[1024];
+    /*int headerSize = NetworkUtils::NetworkMessage::GetHeaderSize();*/
     boost::asio::async_read(m_socket,
-        m_header, boost::asio::transfer_exactly(headerSize),
+        boost::asio::buffer(buf, 10),
         [this](boost::system::error_code ec, std::size_t /*length*/)
     {
         if (!ec)
         {
-            auto headerMessage = Deserialize(m_header);
+            /*auto headerMessage = Deserialize(m_header, NetworkUtils::NetworkMessage::Type::HEADER);
             auto messageSize = headerMessage->GetMessageSize();
             auto messageType = headerMessage->GetType();
 
-            DoReadBody(messageSize, messageType);
+            DoReadBody(messageSize, messageType);*/
         }
         else
         {
@@ -81,13 +80,12 @@ void Client::DoReadBody(std::uint64_t bodySize, NetworkUtils::NetworkMessage::Ty
 
 void Client::DoWrite()
 {
+    boost::asio::streambuf writingBuf;
     auto curMessage = m_outputMessages.front();
-    auto& stream = Serialize(curMessage);
-    
-    boost::asio::streambuf outputBuf;
-    
+    /*Serialize(curMessage, writingBuf);*/
+    char buf[1024];
     boost::asio::async_write(m_socket,
-        ,
+        boost::asio::buffer(buf), boost::asio::transfer_exactly(10),
         [this](boost::system::error_code ec, std::size_t /*length*/)
     {
         if (!ec)
@@ -105,26 +103,22 @@ void Client::DoWrite()
     });
 }
 
-boost::asio::streambuf& Client::Serialize(const std::shared_ptr<NetworkUtils::NetworkMessage>& message)
+boost::asio::streambuf& Client::Serialize(const std::shared_ptr<NetworkUtils::NetworkMessage>& message, boost::asio::streambuf& buf)
 {
-
-    std::ostream out()
-
-    cereal::BinaryOutputArchive outputArchive(m_outputArhiveStream);
-    outputArchive(message);
+    /*cereal::BinaryOutputArchive outputArchive(outputArchiveStream);
+    outputArchive(message);*/
     
-    return ;
+    return buf;
 }
 
-std::shared_ptr<NetworkUtils::NetworkMessage> Client::Deserialize(boost::asio::streambuf& data)
+std::shared_ptr<NetworkUtils::NetworkMessage> Client::Deserialize(boost::asio::streambuf& data, NetworkUtils::NetworkMessage::Type type)
 {
-    m_archiveStream << &data;
-    cereal::BinaryInputArchive inputArchive(m_archiveStream);
-    auto messagePtr = std::make_shared<NetworkUtils::NetworkMessage>();
-    inputArchive(messagePtr);
+    std::stringstream inputStream;
+    inputStream << &data;
 
-    m_archiveStream.clear();
-    m_archiveStream.str("");
+    cereal::BinaryInputArchive inputArchive(inputStream);
+    auto messagePtr = NetworkUtils::NetworkMessage::Create(type);
+    inputArchive(messagePtr);
 
     return messagePtr;
 }
@@ -145,19 +139,15 @@ int main(int argc, char* argv[])
         auto endpoint_iterator = resolver.resolve({ argv[1], argv[2] });
         Client c(io_service, endpoint_iterator);
 
-        std::thread t([&io_service]() { io_service.run(); });
+        
+        auto message = NetworkUtils::NetworkMessage::Create(NetworkUtils::NetworkMessage::Type::PING);
+        c.Write(message);
 
-        /*while (std::cin.getline(line, NetworkUtils::ChatMessage::max_body_length + 1))
-        {
-            NetworkUtils::ChatMessage msg;
-            msg.body_length(std::strlen(line));
-            std::memcpy(msg.body(), line, msg.body_length());
-            msg.encode_header();
-            c.Write(msg);
-        }*/
-
+        
+        
+        io_service.run();
+        Sleep(5000);
         c.Close();
-        t.join();
     }
     catch (std::exception& e)
     {

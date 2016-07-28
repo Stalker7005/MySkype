@@ -20,7 +20,7 @@ public:
     Client(boost::asio::io_service& io_service,
         tcp::resolver::iterator endpoint_iterator);
 
-    void Write(const std::shared_ptr<NetworkUtils::NetworkMessage>& msg);
+    void Write(const std::shared_ptr<NetworkUtils::NetworkMessage> msg);
     void Close();
 
 private:
@@ -29,13 +29,13 @@ private:
     void DoReadBody(std::uint64_t bodySize, NetworkUtils::NetworkMessage::Type type);
     void DoWrite();
 
-    std::ostream& Serialize(const std::shared_ptr<NetworkUtils::NetworkMessage>& message);
-    std::shared_ptr<NetworkUtils::NetworkMessage> Deserialize(boost::asio::streambuf& data);
+    boost::asio::streambuf& Serialize(const std::shared_ptr<NetworkUtils::NetworkMessage>& message, boost::asio::streambuf& buf);
+    std::shared_ptr<NetworkUtils::NetworkMessage> Deserialize(boost::asio::streambuf& data, NetworkUtils::NetworkMessage::Type type);
 
 private:
-    boost::asio::io_service& io_service;
-    
+    boost::asio::io_service& m_io_service;
 
+    boost::asio::streambuf m_outputBuffer;
     boost::asio::streambuf m_header;
     boost::asio::streambuf m_body;
 

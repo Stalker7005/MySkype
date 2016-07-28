@@ -5,14 +5,12 @@ set(MessagesHeaders
     NetworkMessage.h
     Ping.h
     Pong.h
-	ChatMessage.h
 	)
 	
 set(MessagesSources
     NetworkMessage.cpp
     Ping.cpp
     Pong.cpp
-	ChatMessage.cpp
 	)
 	
 set(NetworkDefsHeaders

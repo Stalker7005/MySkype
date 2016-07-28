@@ -10,14 +10,14 @@ class NetworkMessage
 public:
     enum class Type: std::uint8_t
     {
+        HEADER,
         PING,
         PONG,
         TEXT,
         VOICE,
         ARCHIVE,
         SCREENSHOT,
-        VIDEO,
-        INVALID_TYPE
+        VIDEO
     };
 
 public:
