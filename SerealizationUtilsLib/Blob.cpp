@@ -1,6 +1,7 @@
 #include "Blob.h"
 
 namespace Serialization{
+
 const std::uint64_t Blob::DefaultBlobSize = 64;
 
 Blob::Blob(): Blob{DefaultBlobSize}
@@ -11,53 +12,61 @@ Blob::Blob(): Blob{DefaultBlobSize}
 Blob::Blob(std::uint64_t size):
 m_blobSize(size)
 {
-    Allocate(size);
+    Reserve(size);
 }
 
 Blob::~Blob()
 {
-    Clear();
+    Dispose();
 }
 
-void Blob::Allocate(std::uint64_t size)
+void Blob::Reserve(std::uint64_t size)
 {
-    if (size > m_blobSize)
+    m_dataSize = size;
+
+    if (m_data)
     {
-        m_dataBuf = std::make_unique<std::uint8_t[]>(size);
-        m_blobSize = size;
+        if (size > m_blobSize)
+        {
+            m_data = std::make_unique<char[]>(size);
+            m_blobSize = size;
+        }
+        else
+        {
+            ClearData();
+        }
     }
     else
     {
-        std::memset(m_dataBuf.get(), 0, m_blobSize * sizeof(std::uint8_t));
+        m_data = std::make_unique<char[]>(size);
+        m_blobSize = size;
     }
-    
 }
 
-std::uint8_t* Blob::GetDataBuf()
+char* Blob::GetData() const
 {
-
-}
-
-std::iostream& Blob::GetDataStream()
-{
-    auto& stream = m_dataStream.write(reinterpret_cast<const char*>(m_dataStream.get()), m_blobSize * sizeof(std::uint8_t));
-    if (!stream)
-    {
-        //TODO log error!
-    }
-    return m_dataStream;
+    return m_data.get();
 }
 
 std::uint64_t Blob::Size() const
 {
-    return m_blobSize;
+    return m_dataSize;
 }
 
-void Blob::Clear()
+void Blob::Dispose()
 {
-    m_dataBuf.reset();
-    m_dataStream.clear();
-    m_dataStream.str("");
+    m_data.reset();
+}
+
+void Blob::SetData(const char* data, std::uint64_t size)
+{
+    Reserve(size);
+    std::memcpy(m_data.get(), data, size * sizeof(char));
+}
+
+void Blob::ClearData()
+{
+    std::memset(m_data.get(), 0, m_blobSize * sizeof(char));
 }
 
 }

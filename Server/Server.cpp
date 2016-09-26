@@ -1,4 +1,5 @@
 #include "Server.h"
+#include <iostream>
 #include <cstdlib>
 #include <deque>
 #include <iostream>
@@ -16,10 +17,11 @@
 #include "NetworkDefs.h"
 #include "IUser.h"
 #include "UsersGroup.h"
-#include "Serealizer.h"
+#include "Blob.h"
+#include "Serializer.h"
 
+using namespace NetworkUtils;
 using boost::asio::ip::tcp;
-
 
 
 class Session: public IUser,
@@ -29,7 +31,10 @@ public:
     Session(tcp::socket socket, std::shared_ptr<UsersGroup>& users): 
     m_socket(std::move(socket)),
     m_users(users),
-    m_serializer(std::make_shared<Serialization::Serializer>(Serialization::Serializer::Type::BINARY))
+    m_inMsgHeaderBlob(std::make_shared<Serialization::Blob>()),
+    m_inMsgBodyBlob(std::make_shared<Serialization::Blob>()),
+    m_outMsgBlob(std::make_shared<Serialization::Blob>()),
+    m_serializer(std::make_unique<Serialization::Serializer>())
     {
 
     }
@@ -41,30 +46,38 @@ public:
 
     void Deliver(const std::shared_ptr<NetworkUtils::NetworkMessage>& message) override
     {
-        bool write_in_progress = !m_ouputMessages.empty();
-        m_ouputMessages.emplace_back(message);
+        bool write_in_progress = !m_outputMessages.empty();
+        m_outputMessages.emplace_back(message);
 
-        if (!m_writeInProgress)
-        {
-            DoWrite();
-        }
+        /*if (!m_writeInProgress)
+        {*/
+            DoWriteHeader();
+        /*}*/
     }
 
 private:
     void DoReadHeader()
     {
         auto headerSize = NetworkUtils::NetworkMessage::GetHeaderSize();
-        auto self(shared_from_this());
+        m_inMsgHeaderBlob->Reserve(headerSize);
+        auto self = shared_from_this();
+
         boost::asio::async_read(m_socket,
-            m_header, boost::asio::transfer_exactly(headerSize),
-            [this, self](boost::system::error_code ec, std::size_t /*length*/)
+            boost::asio::buffer(m_inMsgHeaderBlob->GetData(), headerSize),
+            [this, self](boost::system::error_code ec, std::size_t length)
         {
             if (!ec)
             {
-                auto headerMessage = Deserialize(m_header, NetworkUtils::NetworkMessage::Type::HEADER);
-                auto bodySize = headerMessage->GetMessageSize();
-                auto messageType = headerMessage->GetType();
-                DoReadBody(bodySize, messageType);
+                std::cout << "Header size:" << length << std::endl;
+                
+                //Deseralize header
+                auto headerInfo = NetworkMessage::ParseHeader(m_inMsgHeaderBlob->GetData());
+                //TODO add message handling
+                auto messageType = headerInfo.first;
+                auto messageSize = headerInfo.second;
+                
+
+                DoReadBody(messageSize);
             }
             else
             {
@@ -73,17 +86,17 @@ private:
         });
     }
 
-    void DoReadBody(std::uint64_t bodySize, NetworkUtils::NetworkMessage::Type msgType)
+    void DoReadBody(std::uint64_t bodySize)
     {
-        auto self(shared_from_this());
+        m_inMsgBodyBlob->Reserve(bodySize);
+        auto self = shared_from_this();
         boost::asio::async_read(m_socket,
-            m_body, boost::asio::transfer_exactly(bodySize),
-            [this, self, msgType](boost::system::error_code ec, std::size_t /*length*/)
+            boost::asio::buffer(m_inMsgBodyBlob->GetData(), bodySize),
+            [this, self](boost::system::error_code ec, std::size_t /*length*/)
         {
             if (!ec)
             {
-                auto resultMessage = Deserialize(m_body, msgType);
-
+                OnPing();
                 DoReadHeader();
             }
             else
@@ -93,64 +106,67 @@ private:
         });
     }
 
-    void DoWrite()
+    void DoWriteHeader()
     {
-        auto message = m_ouputMessages.front();
-        auto& writeBuf = boost::asio::streambuf();
-        auto& buf = Serialize(message, writeBuf);
+        auto outMsg = m_outputMessages.front();
+        m_serializer->Serialize(m_outMsgBlob, outMsg);
+        auto self = shared_from_this();
+        outMsg->SetMessageSize(m_outMsgBlob->Size());
 
-        auto self(shared_from_this());
         boost::asio::async_write(m_socket,
-            buf,
+            boost::asio::buffer(outMsg->GetHeader(), outMsg->GetHeaderSize()),
+            [this, self](boost::system::error_code ec, std::size_t /*lenght*/)
+        {
+            if (!ec)
+            {
+                DoWriteBody();
+            }
+        }
+        );
+    }
+
+    void DoWriteBody()
+    {
+        auto self = shared_from_this();
+        boost::asio::async_write(m_socket,
+            boost::asio::buffer(m_outMsgBlob->GetData(), m_outMsgBlob->Size()),
             [this, self](boost::system::error_code ec, std::size_t /*length*/)
         {
             if (!ec)
             {
-                m_ouputMessages.pop_front();
-                if (!m_ouputMessages.empty())
+                m_outputMessages.pop_front();
+                if (!m_outputMessages.empty())
                 {
-                    DoWrite();
+                    DoWriteHeader();
                 }
             }
             else
             {
-                //Leave logic
+                //m_socket.close();
+                std::cout << "Fuck DoWrite" << std::endl;
             }
         });
     }
 
-    boost::asio::streambuf& Serialize(const std::shared_ptr<NetworkUtils::NetworkMessage>& message, boost::asio::streambuf& buf)
+    void OnPing()
     {
-        std::ostream outputArchiveStream(&buf);
-        cereal::BinaryOutputArchive outputArchive(outputArchiveStream);
-        outputArchive(message);
+        auto message = NetworkMessage::Create(NetworkMessage::Type::PONG);
+        std::cout << "Pong" << std::endl;
 
-        return buf;
-    }
-
-    std::shared_ptr<NetworkUtils::NetworkMessage> Deserialize(boost::asio::streambuf& data, NetworkUtils::NetworkMessage::Type type)
-    {
-        std::stringstream inputStream;
-        inputStream << &data;
-
-        cereal::BinaryInputArchive inputArchive(inputStream);
-        auto messagePtr = NetworkUtils::NetworkMessage::Create(type);
-        inputArchive(messagePtr);
-
-        return messagePtr;
+        Deliver(message);
     }
 
 private:
-
-    boost::asio::streambuf m_header;
-    boost::asio::streambuf m_body;
+    std::shared_ptr<Serialization::Blob> m_inMsgHeaderBlob;
+    std::shared_ptr<Serialization::Blob> m_inMsgBodyBlob;
+    std::shared_ptr<Serialization::Blob> m_outMsgBlob;
+    std::unique_ptr<Serialization::Serializer> m_serializer;
 
     std::shared_ptr<UsersGroup>& m_users;
     bool m_writeInProgress;
     tcp::socket m_socket;
-    std::shared_ptr<Serialization::Serializer> m_serializer;
 
-    std::deque<std::shared_ptr<NetworkUtils::NetworkMessage>> m_ouputMessages;
+    std::deque<std::shared_ptr<NetworkUtils::NetworkMessage>> m_outputMessages;
     std::deque<std::shared_ptr<NetworkUtils::NetworkMessage>> m_inputMessages;
 };
 
@@ -213,6 +229,6 @@ int main(int argc, char* argv[])
     {
         std::cerr << "Exception: " << e.what() << "\n";
     }
-
+    system("pause");
     return 0;
 }

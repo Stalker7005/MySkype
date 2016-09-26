@@ -1,16 +1,21 @@
 #pragma once
 #include <memory>
 #include <cstdint>
+#include <utility>
+
+
 #include <cereal/archives/binary.hpp>
+#include <cereal/archives/portable_binary.hpp>
+#include <cereal/archives/json.hpp>
+#include <cereal/archives/xml.hpp>
 #include <cereal/types/polymorphic.hpp>
 
 namespace NetworkUtils{
 class NetworkMessage
 {
 public:
-    enum class Type: std::uint8_t
+    enum class Type : std::uint8_t
     {
-        HEADER,
         PING,
         PONG,
         TEXT,
@@ -21,12 +26,16 @@ public:
     };
 
 public:
-    NetworkMessage();
+    using TSize = std::uint64_t;
+    using THeaderInfo = std::pair<Type, TSize>;
+
+public:
     virtual ~NetworkMessage() {}
 
 public:
     static std::shared_ptr<NetworkMessage> Create(Type type);
-    static std::uint8_t GetHeaderSize();
+    constexpr static std::uint8_t GetHeaderSize();
+    static THeaderInfo ParseHeader(char* data);
 
 public:
     void SetMessageSize(std::uint64_t size);
@@ -38,6 +47,7 @@ public:
     {
         archive(m_type, m_size);
     }
+    virtual char* GetHeader();
 
 public:
     NetworkMessage(const NetworkMessage&) = delete;
@@ -48,11 +58,8 @@ protected:
 
 private:
     std::uint8_t m_type;
-    std::uint64_t m_size;
+    TSize m_size;
+    std::unique_ptr<char[]> m_header;
 };
-
-
-
-
 }
 

@@ -3,9 +3,12 @@ cmake_minimum_required(VERSION 3.0)
 
 set(Headers
 	Blob.h	
+    Serializer.h
 	)
+
 set(Sources
 	Blob.cpp
+    Serializer.cpp
 	)
 	
 source_group("SerealizationUtilsLib\\Headers" FILES ${Headers})

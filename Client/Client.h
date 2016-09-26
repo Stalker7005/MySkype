@@ -4,14 +4,14 @@
 #include <iostream>
 #include <thread>
 #include <boost/asio.hpp>
+
+#include "Blob.h"
+#include "Serializer.h"
 #include "NetworkMessage.h"
-#include <cereal/archives/binary.hpp>
 
 using boost::asio::ip::tcp;
 
-
-
-class Client
+class Client: public std::enable_shared_from_this<Client>
 {
 public:
     using TMessagesQueue = std::deque<std::shared_ptr<NetworkUtils::NetworkMessage>>;
@@ -26,20 +26,18 @@ public:
 private:
     void DoConnect(tcp::resolver::iterator endpoint_iterator);
     void DoReadHeader();
-    void DoReadBody(std::uint64_t bodySize, NetworkUtils::NetworkMessage::Type type);
-    void DoWrite();
-
-    boost::asio::streambuf& Serialize(const std::shared_ptr<NetworkUtils::NetworkMessage>& message, boost::asio::streambuf& buf);
-    std::shared_ptr<NetworkUtils::NetworkMessage> Deserialize(boost::asio::streambuf& data, NetworkUtils::NetworkMessage::Type type);
+    void DoReadBody(std::uint64_t bodySize);
+    void DoWriteBody();
+    void DoWriteHeader();
+    void OnPong();
 
 private:
     boost::asio::io_service& m_io_service;
-
-    boost::asio::streambuf m_outputBuffer;
-    boost::asio::streambuf m_header;
-    boost::asio::streambuf m_body;
+    std::unique_ptr<Serialization::Serializer> m_serializer;
+    std::shared_ptr<Serialization::Blob> m_inMsgHeaderBlob;
+    std::shared_ptr<Serialization::Blob> m_inMsgBodyBlob;
+    std::shared_ptr<Serialization::Blob> m_outMsgBlob;
 
     tcp::socket m_socket;
-    NetworkUtils::NetworkMessage m_inputMessage;
     TMessagesQueue m_outputMessages;
 };

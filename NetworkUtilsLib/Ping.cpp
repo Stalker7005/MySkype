@@ -6,4 +6,3 @@ Ping::Ping(): NetworkMessage(NetworkMessage::Type::PING)
 
 }
 
-

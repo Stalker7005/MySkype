@@ -1,7 +1,6 @@
 #pragma once
 #include "NetworkMessage.h"
 #include <cereal/types/polymorphic.hpp>
-
 namespace NetworkUtils {
 class Ping : public NetworkMessage
 {
@@ -15,7 +14,6 @@ public:
     }
 };
 }
-
 CEREAL_REGISTER_TYPE(NetworkUtils::Ping);
 
 
