@@ -167,7 +167,6 @@ private:
     tcp::socket m_socket;
 
     std::deque<std::shared_ptr<NetworkUtils::NetworkMessage>> m_outputMessages;
-    std::deque<std::shared_ptr<NetworkUtils::NetworkMessage>> m_inputMessages;
 };
 
 class chat_server
