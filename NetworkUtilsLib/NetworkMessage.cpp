@@ -77,5 +77,13 @@ m_size(0),
 m_header(std::make_unique<char[]>(NetworkMessage::GetHeaderSize()))
 {}
 
+NetworkMessage::NetworkMessage():
+m_type(static_cast<std::uint8_t>(NetworkMessage::Type::INVALID)),
+m_size(0),
+m_header(std::make_unique<char[]>(NetworkMessage::GetHeaderSize()))
+{
+
+}
+
 }
 

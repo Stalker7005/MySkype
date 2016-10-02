@@ -22,7 +22,8 @@ public:
         VOICE,
         ARCHIVE,
         SCREENSHOT,
-        VIDEO
+        VIDEO,
+        INVALID
     };
 
 public:
@@ -30,6 +31,7 @@ public:
     using THeaderInfo = std::pair<Type, TSize>;
 
 public:
+    NetworkMessage();
     virtual ~NetworkMessage() {}
 
 public:
@@ -54,6 +56,7 @@ public:
     NetworkMessage& operator=(const NetworkMessage&) = delete;
 
 protected:
+    
     NetworkMessage(NetworkMessage::Type type);
 
 private:
