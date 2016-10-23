@@ -1,34 +1,36 @@
 project(Server)
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 2.6)
+
 set(ServerHeaders
 	Server.h
 	Session.h
+	TCPSession.h
 	)
 set(ServerSources
 	Server.cpp
 	Session.cpp
+	TCPSession.cpp
 	)
 	
+add_executable(${PROJECT_NAME} ${ServerHeaders} ${ServerSources})
+
 source_group("Server\\Headers" FILES ${ServerHeaders})
 source_group("Server\\Sources" FILES ${ServerSources})
 
-add_executable(${PROJECT_NAME} ${ServerHeaders} ${ServerSources})
-
-if(Boost_FOUND)
-message(STATUS "Boost Include Dirs:${Boost_INCLUDE_DIRS}")
-else()
-message(FATAL_ERROR "Can't find boost!")
-endif()
-
 include_directories(
 					${Boost_INCLUDE_DIRS}
+                    ${LOG4CPLUS_INCLUDE}
 					../NetworkUtilsLib
                     ../SerealizationUtilsLib
+                    ../ThreadsUtilsLib
+                    ../BaseObjects
 				    )
 
-message(STATUS "Boost Libraries:${Boost_LIBRARIES}")
 target_link_libraries(${PROJECT_NAME} 
-					  ${Boost_LIBRARIES} 
+					  ${Boost_LIBRARIES}
+					  ${LOG4CPLUS_LIB_DIRS}					  
 					  NetworkUtilsLib
                       SerealizationUtilsLib
+                      ThreadsUtilsLib
+                      BaseObjects
 					  )

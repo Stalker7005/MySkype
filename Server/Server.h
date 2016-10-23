@@ -7,9 +7,10 @@ public:
     using TSocket = boost::asio::ip::tcp::socket;
     using TEndpoint = boost::asio::ip::tcp::endpoint;
     using TAcceptor = boost::asio::ip::tcp::acceptor;
+    using TIOService = boost::asio::io_service;
 
 public:
-    Server(boost::asio::io_service& ioService,
+    Server(TIOService& ioService,
         const TEndpoint& endpoint);
 
 private:
@@ -18,4 +19,5 @@ private:
 private:
     TAcceptor m_acceptor;
     TSocket m_socket;
+    TIOService m_ioService;
 };

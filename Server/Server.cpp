@@ -16,13 +16,10 @@
 #include "NetworkMessage.h"
 #include "Blob.h"
 #include "Serializer.h"
-#include "Session.h"
+#include "TCPSession.h"
+#include "Logger.h"
 
-using namespace NetworkUtils;
-using boost::asio::ip::tcp;
-
-
-Server::Server(boost::asio::io_service& ioService, const tcp::endpoint& endpoint) :
+Server::Server(boost::asio::io_service& ioService, const boost::asio::ip::tcp::endpoint& endpoint) :
     m_acceptor(ioService, endpoint),
     m_socket(ioService)
 {
@@ -36,7 +33,7 @@ void Server::DoAccept()
     {
         if (!ec)
         {
-            auto session = std::make_shared<Session>(std::move(m_socket));
+            auto session = std::make_shared<TCPSession>(std::move(m_socket), m_ioService);
             session->Start();
         }
 
@@ -49,6 +46,9 @@ int main(int argc, char* argv[])
 {
     try
     {
+        LOG_INIT();
+        LOG_INFO("");
+
         if (argc < 2)
         {
             std::cerr << "Usage: chat_server <port> [<port> ...]\n";
@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
         std::list<Server> servers;
         for (int i = 1; i < argc; ++i)
         {
-            tcp::endpoint endpoint(tcp::v4(), std::atoi(argv[i]));
+            boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), std::atoi(argv[i]));
             servers.emplace_back(io_service, endpoint);
         }
 

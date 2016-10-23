@@ -21,14 +21,16 @@ public:
         tcp::resolver::iterator endpoint_iterator);
 
     void Write(const std::shared_ptr<NetworkUtils::NetworkMessage> msg);
-    void Close();
+
+protected:
+    void CloseConnection();
 
 private:
     void DoConnect(tcp::resolver::iterator endpoint_iterator);
     void DoReadHeader();
     void DoReadBody(std::uint64_t bodySize);
-    void DoWriteBody();
     void DoWriteHeader();
+    void DoWriteBody();
     void OnPong();
 
 private:

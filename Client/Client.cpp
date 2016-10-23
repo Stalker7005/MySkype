@@ -1,5 +1,8 @@
 #include "Client.h"
 #include <iostream>
+#include "Logger.h"
+#include "FileUtils.h"
+#include "ProcessUtils.h"
 
 using namespace NetworkUtils;
 
@@ -18,16 +21,15 @@ void Client::Write(const std::shared_ptr<NetworkUtils::NetworkMessage> msg)
 {
     m_io_service.post([this, msg]()
     {
-        bool writeInProgress = !m_outputMessages.empty();
         m_outputMessages.push_back(msg);
-        if (!writeInProgress)
+        if (!m_outputMessages.empty())
         {
             DoWriteHeader();
         }
     });
 }
 
-void Client::Close()
+void Client::CloseConnection()
 {
     m_io_service.post([this]() { m_socket.close(); });
 }
@@ -40,6 +42,10 @@ void Client::DoConnect(tcp::resolver::iterator endpoint_iterator)
         if (!ec)
         {
             DoReadHeader();
+        }
+        else
+        {
+            LOG_ERR("Can't connect to server!");
         }
     });
 }
@@ -65,8 +71,8 @@ void Client::DoReadHeader()
         }
         else
         {
-            //m_socket.close();
-            std::cout << "Fuck DoReadHeader" << std::endl;
+            LOG_ERR("Can't read header");
+            CloseConnection();
         }
     });
 
@@ -88,8 +94,8 @@ void Client::DoReadBody(std::uint64_t bodySize)
         }
         else
         {
-            //m_socket.close();
-            std::cout << "Fuck DoReadBody" << std::endl;
+            LOG_INFO("Can't read body!");
+            CloseConnection();
         }
     });
 }
@@ -108,6 +114,11 @@ void Client::DoWriteHeader()
         if (!ec)
         {
             DoWriteBody();
+        }
+        else
+        {
+            LOG_ERR("Can't write header!");
+            CloseConnection();
         }
     }
     );
@@ -129,9 +140,9 @@ void Client::DoWriteBody()
             }
         }
         else
-        {
-            //m_socket.close();
-            std::cout << "Fuck DoWrite" << std::endl;
+        {   
+            LOG_ERR("Can't write body!");
+            CloseConnection();
         }
     });
 }
@@ -147,12 +158,14 @@ int main(int argc, char* argv[])
 {
     try
     {
+        LOG_INIT();
+
         if (argc != 3)
         {
             std::cerr << "Usage: chat_client <host> <port>\n";
             return 1;
         }
-        Sleep(6000);
+
         boost::asio::io_service io_service;
 
         tcp::resolver resolver(io_service);
@@ -168,7 +181,6 @@ int main(int argc, char* argv[])
         std::thread t([&io_service]() {io_service.run();});
         t.join();
 
-        /*c->Close();*/
     }
     catch (std::exception& e)
     {
