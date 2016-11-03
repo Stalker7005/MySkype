@@ -4,6 +4,7 @@
 #include <cstdint>
 #include "nanodbc.h"
 
+#pragma comment(lib,"odbc32.lib")
 
 namespace ODBC {
 class NanoODBCHelper

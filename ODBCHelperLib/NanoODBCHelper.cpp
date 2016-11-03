@@ -3,7 +3,7 @@
 
 namespace ODBC {
 
-NanoODBCHelper::NanoODBCHelper(): NanoODBCHelper{L""}
+NanoODBCHelper::NanoODBCHelper()
 {
 
 }
