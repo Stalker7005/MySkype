@@ -10,7 +10,6 @@ set(ClientSources
 
 message(STATUS "${PROJECT_NAME} added: ${ClientHeaders} ${ClientSources}")
 add_executable(${PROJECT_NAME} ${ClientHeaders} ${ClientSources})
-#SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C++ LINK_FLAGS DEBUG)
 
 source_group("Client\\Headers" FILES ${ClientHeaders})
 source_group("Client\\Sources" FILES ${ClientSources})
@@ -18,17 +17,18 @@ source_group("Client\\Sources" FILES ${ClientSources})
 include_directories(
 					${Boost_INCLUDE_DIRS}
 					${LOG4CPLUS_INCLUDE}
+					../ODBCHelperLib
 					../NetworkUtilsLib
                     ../SerealizationUtilsLib
                     ../BaseObjects
-                    
 				    )
 
 message(STATUS "Boost Libraries:${Boost_LIBRARIES}")
 target_link_libraries(
 					  ${PROJECT_NAME} 
 					  ${Boost_LIBRARIES}
-					  ${LOG4CPLUS_LIB_DIRS}					  
+					  ${LOG4CPLUS_LIB_DIRS}
+					  ODBCHelperLib
 					  NetworkUtilsLib
                       SerealizationUtilsLib
                       BaseObjects

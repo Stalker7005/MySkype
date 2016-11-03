@@ -1,4 +1,5 @@
 #include "TCPSession.h"
+#include "Logger.h"
 
 using namespace NetworkUtils;
 using namespace boost::asio::ip;
@@ -48,6 +49,7 @@ void TCPSession::DoReadHeader()
         }
         else
         {
+            LOG_ERR("Can't read header! Boost err:[%s]", ec.message());
             CloseConnecton();
         }
     });
@@ -68,6 +70,7 @@ void TCPSession::DoReadBody(std::uint64_t bodySize)
         }
         else
         {
+            LOG_ERR("Can't read body. Boost err:[%s]", ec.message());
             CloseConnecton();
         }
     });
@@ -90,6 +93,7 @@ void TCPSession::DoWriteHeader()
         }
         else
         {
+            LOG_ERR("Can't write header. Boost err:[%s]", ec.message());
             CloseConnecton();
         }
     }
@@ -113,6 +117,7 @@ void TCPSession::DoWriteBody()
         }
         else
         {
+            LOG_ERR("Can't write body. Boost err:[%s]", ec.message());
             CloseConnecton();
         }
     });

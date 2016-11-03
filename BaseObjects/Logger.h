@@ -40,7 +40,7 @@ private:
     bool m_isInited;
     std::unique_ptr<char[]> m_buffer;
     std::uint64_t m_bufSize;
-    std::string m_loggerName;
+    std::wstring m_loggerName;
 
 private:
     static const std::string Pattern;

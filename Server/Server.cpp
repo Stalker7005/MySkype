@@ -36,6 +36,10 @@ void Server::DoAccept()
             auto session = std::make_shared<TCPSession>(std::move(m_socket), m_ioService);
             session->Start();
         }
+        else
+        {
+            LOG_ERR("Can't create client session. Boost error:[%s]", ec.message());
+        }
 
         DoAccept();
     });
@@ -47,7 +51,6 @@ int main(int argc, char* argv[])
     try
     {
         LOG_INIT();
-        LOG_INFO("");
 
         if (argc < 2)
         {

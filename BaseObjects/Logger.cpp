@@ -84,7 +84,7 @@ void Logger::Log(Type type, std::int64_t line, const char* functionName, const c
 
     auto resultMsg = boost::str(boost::format("[%2%:%1%]") % line % functionName) + m_buffer.get();
 
-    auto currentLogger = log4cplus::Logger::getRoot();
+    auto currentLogger = log4cplus::Logger::getInstance(m_loggerName);
     switch (type)
     {
     case Logger::Type::Debug:
@@ -108,7 +108,7 @@ void Logger::Log(Type type, std::int64_t line, const char* functionName, const c
 Logger::Logger():
 m_isInited(false),
 m_buffer(std::make_unique<char[]>(PreallocatedBufferSize)),
-m_loggerName(std::to_string(ProcessUtils::GetProcessId())),
+m_loggerName(std::to_wstring(ProcessUtils::GetProcessId())),
 m_bufSize(PreallocatedBufferSize)
 {}
 
