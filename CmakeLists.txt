@@ -60,6 +60,8 @@ add_definitions(-DBUILD_LINUX)
 endif(UNIX)
 
 include_directories(${CEREAL_INCLUDE})
+add_subdirectory(ServerManagers)
+add_subdirectory(ServerObjects)
 add_subdirectory(ODBCHelperLib)
 add_subdirectory(Tests)
 add_subdirectory(BaseObjects)

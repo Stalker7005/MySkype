@@ -38,6 +38,16 @@ TEST_CASE("ODBCHelperTest")
             std::wcout << result.get<std::wstring>(L"Name") << result.get<std::wstring>(L"Age") << std::endl;
         }
 
+        result = helper.Execute(L"Update SimpleTest Set Age = 20 Where Name='Fred'");
+        REQUIRE(result);
+
+        result = helper.Execute(L"Select * From SimpleTest");
+        REQUIRE(result.columns() == 2);
+
+        while (result.next())
+        {
+            std::wcout << result.get<std::wstring>(L"Name") << result.get<std::wstring>(L"Age") << std::endl;
+        }
     }
 }
 
