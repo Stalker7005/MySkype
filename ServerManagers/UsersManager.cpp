@@ -1,4 +1,6 @@
 #include "UsersManager.h"
-namespace ServerManagers {
+
+namespace ServerManagers 
+{
 
 }

@@ -5,9 +5,12 @@ set(EntitiesHeaders
     IBaseEntity.h
     IEntitiesVisitor.h
     User.h
+    UsersGroup.h
+    EntitiesDefs.h
     )   
 set(EntitiesSources
     User.cpp
+    UsersGroup.cpp
     )
 
 set(ServerObjectsHeaders

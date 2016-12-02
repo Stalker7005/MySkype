@@ -24,9 +24,10 @@ public:
     using TIOService = boost::asio::io_service;
 
 public:
-    TCPSession(TSocket socket, TIOService& ioService);
+    TCPSession(TIOService& ioService);
 
     void Write(const std::shared_ptr<NetworkUtils::NetworkMessage>& message);
+    TSocket& GetSocket();
 
 protected:
     void CloseConnecton();
@@ -38,14 +39,14 @@ protected:
 private:
     void DoReadHeader();
 
-    void DoReadBody(std::uint64_t bodySize);
+    void DoReadBody(const std::shared_ptr<NetworkUtils::Header>& header);
     void DoWriteHeader();
 
-    void DoWriteBody();
+    void DoWriteBody(const std::shared_ptr<NetworkUtils::NetworkMessage>& outMsg);
 
     void OnPing()
     {
-        auto message = NetworkUtils::NetworkMessage::Create(NetworkUtils::NetworkMessage::Type::PONG);
+        auto message = NetworkUtils::NetworkMessage::Create(NetworkUtils::MessageType::PONG);
         std::cout << "Pong" << std::endl;
 
         Write(message);

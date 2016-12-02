@@ -20,20 +20,20 @@
 #include "Logger.h"
 
 Server::Server(boost::asio::io_service& ioService, const boost::asio::ip::tcp::endpoint& endpoint) :
-    m_acceptor(ioService, endpoint),
-    m_socket(ioService)
+    m_acceptor(ioService, endpoint)
 {
     DoAccept();
 }
 
 void Server::DoAccept()
 {
-    m_acceptor.async_accept(m_socket,
-        [this](boost::system::error_code ec)
+    auto session = std::make_shared<TCPSession>(m_ioService);
+
+    m_acceptor.async_accept(session->GetSocket(),
+        [this, session](boost::system::error_code ec)
     {
         if (!ec)
         {
-            auto session = std::make_shared<TCPSession>(std::move(m_socket), m_ioService);
             session->Start();
         }
         else
@@ -76,5 +76,3 @@ int main(int argc, char* argv[])
     system("pause");
     return 0;
 }
-
-

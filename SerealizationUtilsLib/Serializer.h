@@ -19,6 +19,7 @@
 #include <cereal/types/unordered_set.hpp>
 
 #include "Blob.h"
+#include "Logger.h"
 
 namespace Serialization {
 class Serializer
@@ -66,10 +67,11 @@ public:
     void Deserialize(std::shared_ptr<Serialization::Blob>& blob, Args&&... params)
     {
         ClearDataStream();
-        auto& stream = m_dataStream.write(blob->GetData(), 44);
+        auto& stream = m_dataStream.write(reinterpret_cast<const char*>(blob->GetData()), blob->Size());
         if (!stream)
         {
-            std::cout << "Can't serialize data" << std::endl;
+            LOG_ERR("Can't serialize data");
+            return;
         }
 
         if (m_type == Type::Binary)
@@ -84,7 +86,7 @@ public:
         }
         else
         {
-            //TODO Add Logger 
+            LOG_ERR("Invalid serialization type");
         }
     }
 

@@ -4,8 +4,8 @@
 using namespace NetworkUtils;
 using namespace boost::asio::ip;
 
-TCPSession::TCPSession(TSocket socket, TIOService& ioService) :
-    m_socket(std::move(socket)),
+TCPSession::TCPSession(TIOService& ioService) :
+    m_socket(ioService),
     m_inMsgHeaderBlob(std::make_shared<Serialization::Blob>()),
     m_inMsgBodyBlob(std::make_shared<Serialization::Blob>()),
     m_outMsgBlob(std::make_shared<Serialization::Blob>()),
@@ -27,7 +27,7 @@ void TCPSession::Write(const std::shared_ptr<NetworkUtils::NetworkMessage>& mess
 void TCPSession::DoReadHeader()
 {
     auto headerSize = NetworkUtils::NetworkMessage::GetHeaderSize();
-    m_inMsgHeaderBlob->Reserve(headerSize);
+    m_inMsgHeaderBlob->Resize(headerSize);
     auto self = shared_from_this();
 
     boost::asio::async_read(m_socket,
@@ -36,16 +36,11 @@ void TCPSession::DoReadHeader()
     {
         if (!ec)
         {
-            std::cout << "Header size:" << length << std::endl;
-
-            //Deseralize header
-            auto headerInfo = NetworkMessage::ParseHeader(m_inMsgHeaderBlob->GetData());
-            //TODO add message handling
-            auto messageType = headerInfo.first;
-            auto messageSize = headerInfo.second;
-
-
-            DoReadBody(messageSize);
+            auto message = NetworkUtils::NetworkMessage::Create(MessageType::BASE);
+            auto header = message->GetHeader();
+            m_serializer->Deserialize(m_inMsgHeaderBlob, header);
+            
+            DoReadBody(header);
         }
         else
         {
@@ -55,12 +50,13 @@ void TCPSession::DoReadHeader()
     });
 }
 
-void TCPSession::DoReadBody(std::uint64_t bodySize)
+void TCPSession::DoReadBody(const std::shared_ptr<Header>& header)
 {
-    m_inMsgBodyBlob->Reserve(bodySize);
+    auto messageSize = header->GetMessageSize();
+    m_inMsgBodyBlob->Resize(messageSize);
     auto self = shared_from_this();
     boost::asio::async_read(m_socket,
-        boost::asio::buffer(m_inMsgBodyBlob->GetData(), bodySize),
+        boost::asio::buffer(m_inMsgBodyBlob->GetData(), messageSize),
         [this, self](boost::system::error_code ec, std::size_t /*length*/)
     {
         if (!ec)
@@ -78,18 +74,18 @@ void TCPSession::DoReadBody(std::uint64_t bodySize)
 
 void TCPSession::DoWriteHeader()
 {
-    auto outMsg = m_outputMessages.front();
-    m_serializer->Serialize(m_outMsgBlob, outMsg);
     auto self = shared_from_this();
-    outMsg->SetMessageSize(m_outMsgBlob->Size());
-
+    auto outMsg = m_outputMessages.front();
+    auto header = outMsg->GetHeader();
+    m_serializer->Serialize(m_outMsgBlob, header);
+    
     boost::asio::async_write(m_socket,
-        boost::asio::buffer(outMsg->GetHeader(), outMsg->GetHeaderSize()),
-        [this, self](boost::system::error_code ec, std::size_t /*lenght*/)
+        boost::asio::buffer(m_outMsgBlob->GetData(), outMsg->GetHeaderSize()),
+        [this, self, outMsg](boost::system::error_code ec, std::size_t /*lenght*/)
     {
         if (!ec)
         {
-            DoWriteBody();
+            DoWriteBody(outMsg);
         }
         else
         {
@@ -100,9 +96,12 @@ void TCPSession::DoWriteHeader()
     );
 }
 
-void TCPSession::DoWriteBody()
+void TCPSession::DoWriteBody(const std::shared_ptr<NetworkUtils::NetworkMessage>& outMsg)
 {
+    m_serializer->Serialize(m_outMsgBlob, outMsg);
     auto self = shared_from_this();
+    outMsg->SetMessageSize(m_outMsgBlob->Size());
+
     boost::asio::async_write(m_socket,
         boost::asio::buffer(m_outMsgBlob->GetData(), m_outMsgBlob->Size()),
         [this, self](boost::system::error_code ec, std::size_t /*length*/)
@@ -145,5 +144,10 @@ bool TCPSession::IsCanStart()
 void TCPSession::CloseConnecton()
 {
     m_ioService.post([this]() { m_socket.close(); });
+}
+
+TCPSession::TSocket& TCPSession::GetSocket()
+{
+    return m_socket;
 }
 

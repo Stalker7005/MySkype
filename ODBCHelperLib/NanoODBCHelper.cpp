@@ -1,5 +1,6 @@
 #include "NanoODBCHelper.h"
 #include "Logger.h"
+#pragma comment(lib,"odbc32.lib")
 
 namespace ODBC {
 

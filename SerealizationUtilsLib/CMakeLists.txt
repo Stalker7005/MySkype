@@ -10,6 +10,11 @@ set(Sources
 	Blob.cpp
     Serializer.cpp
 	)
+
+include_directories(
+                    ${LOG4CPLUS_INCLUDE}
+                    ../BaseObjects
+                    )
 	
 add_library(${PROJECT_NAME} STATIC ${Headers} ${Sources})
 

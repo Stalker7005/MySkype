@@ -18,7 +18,7 @@ include_directories(
 					${Boost_INCLUDE_DIRS}
 					${LOG4CPLUS_INCLUDE}
 					../ODBCHelperLib
-					../NetworkUtilsLib
+					../NetworkLib
                     ../SerealizationUtilsLib
                     ../BaseObjects
 				    )
@@ -29,7 +29,7 @@ target_link_libraries(
 					  ${Boost_LIBRARIES}
 					  ${LOG4CPLUS_LIB_DIRS}
 					  ODBCHelperLib
-					  NetworkUtilsLib
+					  NetworkLib
                       SerealizationUtilsLib
                       BaseObjects
 					  )

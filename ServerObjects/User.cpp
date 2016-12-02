@@ -51,14 +51,14 @@ std::wstring User::GetLoginName() const
     return m_loginName;
 }
 
-void User::SetContactsList(const std::vector<std::wstring>& contacts)
+void User::SetGroupsTags(const std::vector<std::wstring>& groupsTagc)
 {
-    m_contactsList = contacts;
+    m_groupsTags = groupsTagc;
 }
 
-std::vector<std::wstring> User::GetContactsList() const
+std::vector<std::wstring> User::GetGroupsTags() const
 {
-    return m_contactsList;
+    return m_groupsTags;
 }
 
 void User::Fill(std::shared_ptr<IEntitiesVisitor>& visitor)
@@ -73,13 +73,23 @@ void User::Clear()
     m_age = 0;
     m_password.clear();
     m_loginName.clear();
-    m_contactsList.clear();
+    m_groupsTags.clear();
 }
 
 User::User():
 m_age(0)
 {
 
+}
+
+void User::SetUserState(UserState state)
+{
+    m_userState = state;
+}
+
+Entities::User::UserState User::GetUserState() const
+{
+    return m_userState;
 }
 
 }

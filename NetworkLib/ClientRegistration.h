@@ -1,27 +1,22 @@
-#pragma  once
-#include <cstdint>
-#include <string>
-#include <vector>
-
-#include "IBaseEntity.h"
-#include "EntitiesDefs.h"
+#pragma once
+#include "NetworkMessage.h"
 #include "CommonDefs.h"
+#include <cereal/types/polymorphic.hpp>
 
-namespace Entities {
-class User: public IBaseEntity,
-            public std::enable_shared_from_this<User>
+namespace NetworkUtils {
+class ClientRegistration : public NetworkMessage
 {
 public:
-    enum class UserState
-    {
-        Active,
-        Passive
-    };
+    ClientRegistration();
+    ~ClientRegistration() = default;
 
 public:
-    User();
-    ~User() = default;
-    
+    template<typename Archive>
+    void serialize(Archive& archive)
+    {
+        archive(m_firstName, m_secondName, m_age, m_password, m_loginName, m_groupsTags);
+    }
+
 public:
     void SetFirstName(const std::wstring& firstName);
     std::wstring GetFirstName() const;
@@ -38,14 +33,8 @@ public:
     void SetLoginName(const std::wstring& loginName);
     std::wstring GetLoginName() const;
 
-    void SetUserState(UserState state);
-    UserState GetUserState() const;
-
     void SetGroupsTags(const std::vector<TGroupTag>& groupsTags);
     std::vector<TGroupTag> GetGroupsTags() const;
-
-    void Fill(std::shared_ptr<IEntitiesVisitor>& visitor) override;
-    void Clear() override;
 
 private:
     std::wstring m_firstName;
@@ -53,10 +42,8 @@ private:
     std::uint32_t m_age;
     std::wstring m_password;
     std::wstring m_loginName;
-    UserState m_userState;
     std::vector<std::wstring> m_groupsTags;
 };
 }
-
 
 

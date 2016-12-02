@@ -18,6 +18,5 @@ private:
 
 private:
     TAcceptor m_acceptor;
-    TSocket m_socket;
     TIOService m_ioService;
 };

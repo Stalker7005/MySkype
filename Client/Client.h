@@ -11,7 +11,7 @@
 
 using boost::asio::ip::tcp;
 
-class Client: public std::enable_shared_from_this<Client>
+class Client : public std::enable_shared_from_this<Client>
 {
 public:
     using TMessagesQueue = std::deque<std::shared_ptr<NetworkUtils::NetworkMessage>>;

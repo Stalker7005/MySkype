@@ -7,6 +7,7 @@ set(BaseObjectsHeaders
     ProcessUtils.h
 	INetworkMessagesListener.h
 	NetworkMessagesProvider.h
+    CommonDefs.h
 	)
 set(BaseObjectsSources
     Logger.cpp
