@@ -4,18 +4,19 @@
 using namespace NetworkUtils;
 using namespace boost::asio::ip;
 
-TCPSession::TCPSession(TIOService& ioService) :
-    m_socket(ioService),
-    m_inMsgHeaderBlob(std::make_shared<Serialization::Blob>()),
-    m_inMsgBodyBlob(std::make_shared<Serialization::Blob>()),
-    m_outMsgBlob(std::make_shared<Serialization::Blob>()),
-    m_serializer(std::make_unique<Serialization::Serializer>()),
-    m_ioService(ioService)
+TCPSession::TCPSession(NetworkUtils::TSessionId sessionId, TIOService& ioService):
+m_socket(ioService),
+m_inMsgHeaderBlob(std::make_shared<Serialization::Blob>()),
+m_inMsgBodyBlob(std::make_shared<Serialization::Blob>()),
+m_outMsgBlob(std::make_shared<Serialization::Blob>()),
+m_serializer(std::make_unique<Serialization::Serializer>()),
+m_ioService(ioService),
+m_sessionId(sessionId)
 {
 
 }
 
-void TCPSession::Write(const std::shared_ptr<NetworkUtils::NetworkMessage>& message)
+void TCPSession::Post(const std::shared_ptr<NetworkUtils::NetworkMessage>& message)
 {
     m_outputMessages.emplace_back(message);
     if (!m_outputMessages.empty())
@@ -149,5 +150,10 @@ void TCPSession::CloseConnecton()
 TCPSession::TSocket& TCPSession::GetSocket()
 {
     return m_socket;
+}
+
+NetworkUtils::TSessionId TCPSession::GetId() const
+{
+    return m_sessionId;
 }
 

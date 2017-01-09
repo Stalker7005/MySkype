@@ -24,10 +24,13 @@ public:
     using TIOService = boost::asio::io_service;
 
 public:
-    TCPSession(TIOService& ioService);
-
-    void Write(const std::shared_ptr<NetworkUtils::NetworkMessage>& message);
+    TCPSession(NetworkUtils::TSessionId sessionId, TIOService& ioService);
+    
+    void Post(const std::shared_ptr<NetworkUtils::NetworkMessage>& message);
     TSocket& GetSocket();
+
+    //Fixme add interface or base class
+    NetworkUtils::TSessionId GetId() const;
 
 protected:
     void CloseConnecton();
@@ -49,11 +52,13 @@ private:
         auto message = NetworkUtils::NetworkMessage::Create(NetworkUtils::MessageType::PONG);
         std::cout << "Pong" << std::endl;
 
-        Write(message);
+        Post(message);
     }
+
 private:
     TIOService& m_ioService;
     TSocket m_socket;
+    NetworkUtils::TSessionId m_sessionId;
 
 private:
     std::deque<std::shared_ptr<NetworkUtils::NetworkMessage>> m_outputMessages;

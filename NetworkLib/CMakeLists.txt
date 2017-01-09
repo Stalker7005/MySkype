@@ -26,23 +26,12 @@ set(CommonHeaders
 	Connection.h
     Session.h
 	TCPSession.h
-    ISessionRole.h
-    SessionRole.h
-    TcpSessionRole.h
-    TcpAcceptor.h
-    TcpConnector.h
-    Endpoint.h
     )
 	
 set(CommonSources
 	Session.cpp
 	Connection.cpp
-    SessionRole.cpp
     TCPSession.cpp
-    TcpSessionRole.cpp
-    TcpAcceptor.cpp
-    TcpConnector.cpp
-    Endpoint.cpp
     )
 	
 set(HeadersLst
