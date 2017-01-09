@@ -73,7 +73,7 @@ NetworkMessage::NetworkMessage()
 }
 
 NetworkMessage::NetworkMessage(MessageType type, TMessageSize size)
-: m_header(std::make_shared<Header>(static_cast<TMessageNumericType>(type), size))
+: m_header(std::make_shared<Header>(type, size))
 {}
 
 }

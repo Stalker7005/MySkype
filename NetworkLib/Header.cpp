@@ -3,15 +3,15 @@
 
 namespace NetworkUtils {
 
-Header::Header(): Header{static_cast<uint8_t>(MessageType::INVALID), 0}
+Header::Header(): Header{MessageType::INVALID, 0}
 {}
 
-Header::Header(TMessageNumericType type, TMessageSize size)
+Header::Header(MessageType type, TMessageSize size)
 : m_size(size)
 , m_type(type)
 {}
 
-Header::Header(TMessageNumericType type): Header{type, 0}
+Header::Header(MessageType type): Header{type, 0}
 {
 
 }
@@ -31,12 +31,12 @@ std::uint64_t Header::GetMessageSize() const
     return m_size;
 }
 
-void Header::SetType(uint8_t type)
+void Header::SetType(MessageType type)
 {
     m_type = type;
 }
 
-std::uint8_t Header::GetType() const
+NetworkUtils::MessageType Header::GetType() const
 {
     return m_type;
 }

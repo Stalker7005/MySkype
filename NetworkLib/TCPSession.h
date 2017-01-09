@@ -15,9 +15,11 @@
 #include "Blob.h"
 #include "Serializer.h"
 #include "RunningContext.h"
+#include "Session.h"
 
-class TCPSession : public ThreadsUtils::RunningContext,
-                   public std::enable_shared_from_this<TCPSession>
+namespace Network {
+class TCPSession : public Session,
+    public std::enable_shared_from_this<TCPSession>
 {
 public:
     using TSocket = boost::asio::ip::tcp::socket;
@@ -25,12 +27,12 @@ public:
 
 public:
     TCPSession(NetworkUtils::TSessionId sessionId, TIOService& ioService);
-    
-    void Post(const std::shared_ptr<NetworkUtils::NetworkMessage>& message);
-    TSocket& GetSocket();
+    ~TCPSession();
 
-    //Fixme add interface or base class
-    NetworkUtils::TSessionId GetId() const;
+public:
+    void Post(const std::shared_ptr<NetworkUtils::NetworkMessage>& message) override;
+    void Read(TCallback callback) override;
+    TSocket& GetSocket();
 
 protected:
     void CloseConnecton();
@@ -58,7 +60,7 @@ private:
 private:
     TIOService& m_ioService;
     TSocket m_socket;
-    NetworkUtils::TSessionId m_sessionId;
+    Session::TCallback m_readCallback;
 
 private:
     std::deque<std::shared_ptr<NetworkUtils::NetworkMessage>> m_outputMessages;
@@ -67,3 +69,4 @@ private:
     std::shared_ptr<Serialization::Blob> m_outMsgBlob;
     std::unique_ptr<Serialization::Serializer> m_serializer;
 };
+}

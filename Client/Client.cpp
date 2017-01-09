@@ -3,7 +3,7 @@
 #include "Logger.h"
 #include "FileUtils.h"
 #include "ProcessUtils.h"
-
+#include "TCPSession.h"
 using namespace NetworkUtils;
 
 Client::Client(boost::asio::io_service& io_service, tcp::resolver::iterator endpointIterator) : 
@@ -25,19 +25,21 @@ int main(int argc, char* argv[])
             return 1;
         }
 
-        boost::asio::io_service io_service;
-
-        tcp::resolver resolver(io_service);
-        auto endpoint_iterator = resolver.resolve({ argv[1], argv[2] });
-        std::shared_ptr<Client> c = std::make_shared<Client>(io_service, endpoint_iterator);
-
+        std::shared_ptr<boost::asio::io_service> ioService;
+        ioService.reset(new boost::asio::io_service);
         
+
+        tcp::resolver resolver(*ioService);
+        auto endpoint_iterator = resolver.resolve({ argv[1], argv[2] });
+        std::shared_ptr<Client> c = std::make_shared<Client>(*ioService, endpoint_iterator);
+
+        auto session = std::make_shared<Network::TCPSession>(1, *ioService);
         auto message = NetworkUtils::NetworkMessage::Create(NetworkUtils::MessageType::PING);
         std::cout << "Sending ping" << std::endl;
-        c->Write(message);
-
         
-        std::thread t([&io_service]() {io_service.run();});
+
+
+        std::thread t([&ioService]() {ioService->run();});
         t.join();
 
     }

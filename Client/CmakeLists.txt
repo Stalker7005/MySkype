@@ -21,6 +21,7 @@ include_directories(
 					../NetworkLib
                     ../SerealizationUtilsLib
                     ../BaseObjects
+                    ../ThreadsUtilsLib
 				    )
 
 message(STATUS "Boost Libraries:${Boost_LIBRARIES}")
@@ -32,4 +33,5 @@ target_link_libraries(
 					  NetworkLib
                       SerealizationUtilsLib
                       BaseObjects
+                      ThreadsUtilsLib
 					  )

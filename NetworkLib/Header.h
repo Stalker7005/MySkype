@@ -7,14 +7,14 @@ class Header
 {
 public:
     Header();
-    Header(TMessageNumericType type);
-    Header(TMessageNumericType type, TMessageSize size);
+    Header(MessageType type);
+    Header(MessageType type, TMessageSize size);
     ~Header() = default;
     
     template<typename Archive>
     void serialize(Archive& archive)
     {
-        archive(m_size, m_type);
+        archive(m_size, static_cast<TMessageNumericType>(m_type));
     }
 
     static THeaderSize GetHeaderSize();
@@ -23,12 +23,12 @@ public:
     void SetMessageSize(std::uint64_t size);
     std::uint64_t GetMessageSize() const;
 
-    void SetType(uint8_t type);
-    std::uint8_t GetType() const;
+    void SetType(MessageType type);
+    MessageType GetType() const;
 
 public:
     TMessageSize m_size;
-    TMessageNumericType m_type;
+    MessageType m_type;
 };
 }
 

@@ -23,7 +23,7 @@ public:
     void StopSession(NetworkUtils::TSessionId stopSession);
     void StartSessions();
     void StopSessions();
-    
+
 private:
     NetworkUtils::TSessionId m_sessionId;
     std::unordered_map<NetworkUtils::TSessionId, std::shared_ptr<Session>> m_sessions;
@@ -85,10 +85,9 @@ void Network::Connection::StopSessions()
     }
 }
 
-template<typename T>
-T Network::Connection::GetSession(NetworkUtils::TSessionId sessionId)
+std::shared_ptr<Session> Network::Connection::GetSession(NetworkUtils::TSessionId sessionId)
 {
-    std::shared_ptr<T> result;
+    std::shared_ptr<Session> result;
     auto iter = m_sessions.find(sessionId);
     if (iter != m_sessions.end())
     {
@@ -96,7 +95,7 @@ T Network::Connection::GetSession(NetworkUtils::TSessionId sessionId)
     }
     else
     {
-        LOG_WARN("Can't find session with id:[%d]", sessionId)
+        LOG_WARN("Can't find session with id:[%d]", sessionId);
     }
 
     return result;

@@ -27,7 +27,7 @@ Server::Server(boost::asio::io_service& ioService, const boost::asio::ip::tcp::e
 
 void Server::DoAccept()
 {
-    auto session = std::make_shared<TCPSession>(m_ioService);
+    auto session = std::make_shared<Network::TCPSession>(1, m_ioService);
 
     m_acceptor.async_accept(session->GetSocket(),
         [this, session](boost::system::error_code ec)
@@ -63,10 +63,21 @@ int main(int argc, char* argv[])
         std::list<Server> servers;
         for (int i = 1; i < argc; ++i)
         {
-            boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), std::atoi(argv[i]));
+            
             servers.emplace_back(io_service, endpoint);
         }
+        std::shared_ptr<boost::asio::io_service> ioService;
+        ioService.reset(new boost::asio::io_service);
 
+        boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), std::atoi(argv[i]));
+        auto session = std::make_shared<Network::TCPSession>(1, *ioService);
+        auto message = NetworkUtils::NetworkMessage::Create(NetworkUtils::MessageType::PING);
+        std::cout << "Sending ping" << std::endl;
+
+
+
+        std::thread t([&ioService]() {ioService->run();});
+        t.join();
         io_service.run();
     }
     catch (std::exception& e)

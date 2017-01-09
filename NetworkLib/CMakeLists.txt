@@ -22,15 +22,14 @@ set(NetworkDefsHeaders
 	)
 	
 set(CommonHeaders
-	IConnection.h
 	Connection.h
     Session.h
 	TCPSession.h
     )
 	
 set(CommonSources
-	Session.cpp
 	Connection.cpp
+    Session.cpp
     TCPSession.cpp
     )
 	

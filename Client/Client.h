@@ -20,6 +20,6 @@ public:
 
 private:
     boost::asio::io_service& m_ioService;
-    std::unique_ptr<Network::Connection> m_connection;
+    //std::unique_ptr<Network::Connection> m_connection;
 
 };

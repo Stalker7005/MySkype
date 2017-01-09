@@ -3,15 +3,20 @@
 
 using namespace NetworkUtils;
 using namespace boost::asio::ip;
+namespace Network {
+TCPSession::TCPSession(NetworkUtils::TSessionId sessionId, TIOService& ioService) 
+: Session(sessionId),
+  m_socket(ioService),
+  m_inMsgHeaderBlob(std::make_shared<Serialization::Blob>()),
+  m_inMsgBodyBlob(std::make_shared<Serialization::Blob>()),
+  m_outMsgBlob(std::make_shared<Serialization::Blob>()),
+  m_serializer(std::make_unique<Serialization::Serializer>()),
+  m_ioService(ioService)
+{
 
-TCPSession::TCPSession(NetworkUtils::TSessionId sessionId, TIOService& ioService):
-m_socket(ioService),
-m_inMsgHeaderBlob(std::make_shared<Serialization::Blob>()),
-m_inMsgBodyBlob(std::make_shared<Serialization::Blob>()),
-m_outMsgBlob(std::make_shared<Serialization::Blob>()),
-m_serializer(std::make_unique<Serialization::Serializer>()),
-m_ioService(ioService),
-m_sessionId(sessionId)
+}
+
+TCPSession::~TCPSession()
 {
 
 }
@@ -23,6 +28,12 @@ void TCPSession::Post(const std::shared_ptr<NetworkUtils::NetworkMessage>& messa
     {
         DoWriteHeader();
     }
+}
+
+void TCPSession::Read(TCallback callback)
+{
+    m_readCallback = callback;
+    DoReadHeader();
 }
 
 void TCPSession::DoReadHeader()
@@ -40,7 +51,7 @@ void TCPSession::DoReadHeader()
             auto message = NetworkUtils::NetworkMessage::Create(MessageType::BASE);
             auto header = message->GetHeader();
             m_serializer->Deserialize(m_inMsgHeaderBlob, header);
-            
+
             DoReadBody(header);
         }
         else
@@ -58,11 +69,17 @@ void TCPSession::DoReadBody(const std::shared_ptr<Header>& header)
     auto self = shared_from_this();
     boost::asio::async_read(m_socket,
         boost::asio::buffer(m_inMsgBodyBlob->GetData(), messageSize),
-        [this, self](boost::system::error_code ec, std::size_t /*length*/)
+        [this, self, header](boost::system::error_code ec, std::size_t /*length*/)
     {
         if (!ec)
         {
-            OnPing();
+            if (m_readCallback)
+            {
+                auto messageType = header->GetType();
+                auto message = NetworkUtils::NetworkMessage::Create(messageType);
+                m_serializer->Deserialize(m_inMsgBodyBlob, message);
+                m_readCallback(message);
+            }
             DoReadHeader();
         }
         else
@@ -79,7 +96,7 @@ void TCPSession::DoWriteHeader()
     auto outMsg = m_outputMessages.front();
     auto header = outMsg->GetHeader();
     m_serializer->Serialize(m_outMsgBlob, header);
-    
+
     boost::asio::async_write(m_socket,
         boost::asio::buffer(m_outMsgBlob->GetData(), outMsg->GetHeaderSize()),
         [this, self, outMsg](boost::system::error_code ec, std::size_t /*lenght*/)
@@ -151,9 +168,6 @@ TCPSession::TSocket& TCPSession::GetSocket()
 {
     return m_socket;
 }
-
-NetworkUtils::TSessionId TCPSession::GetId() const
-{
-    return m_sessionId;
 }
+
 
