@@ -6,7 +6,7 @@
 #include "NetworkDefs.h"
 #include "Header.h"
 
-namespace NetworkUtils{
+namespace Network{
 class NetworkMessage: public ISerializable
 {
 public:

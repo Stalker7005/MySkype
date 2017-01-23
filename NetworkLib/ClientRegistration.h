@@ -2,7 +2,7 @@
 #include "NetworkMessage.h"
 #include "CommonDefs.h"
 
-namespace NetworkUtils {
+namespace Network {
 class ClientRegistration : public NetworkMessage
 {
 public:

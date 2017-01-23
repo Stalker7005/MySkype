@@ -13,20 +13,20 @@ public:
 
 public:
     void AddSession(const std::shared_ptr<Session>& session);
-    std::shared_ptr<Session> GetSession(NetworkUtils::TSessionId sessionId);
+    std::shared_ptr<Session> GetSession(Network::TSessionId sessionId);
 
-    void RemoveSession(NetworkUtils::TSessionId id);
+    void RemoveSession(Network::TSessionId id);
     void RemoveSessions();
 
 public:
-    void StartSession(NetworkUtils::TSessionId sessionId);
-    void StopSession(NetworkUtils::TSessionId stopSession);
+    void StartSession(Network::TSessionId sessionId);
+    void StopSession(Network::TSessionId stopSession);
     void StartSessions();
     void StopSessions();
 
 private:
-    NetworkUtils::TSessionId m_sessionId;
-    std::unordered_map<NetworkUtils::TSessionId, std::shared_ptr<Session>> m_sessions;
+    Network::TSessionId m_sessionId;
+    std::unordered_map<Network::TSessionId, std::shared_ptr<Session>> m_sessions;
 };
 
 Network::Connection::Connection()
@@ -47,7 +47,7 @@ void Network::Connection::AddSession(const std::shared_ptr<Session>& session)
     ++m_sessionId;
 }
 
-void Network::Connection::RemoveSession(NetworkUtils::TSessionId id)
+void Network::Connection::RemoveSession(Network::TSessionId id)
 {
     auto iter = m_sessions.find(id);
     if (iter != m_sessions.end())
@@ -85,7 +85,7 @@ void Network::Connection::StopSessions()
     }
 }
 
-std::shared_ptr<Session> Network::Connection::GetSession(NetworkUtils::TSessionId sessionId)
+std::shared_ptr<Session> Network::Connection::GetSession(Network::TSessionId sessionId)
 {
     std::shared_ptr<Session> result;
     auto iter = m_sessions.find(sessionId);
@@ -101,7 +101,7 @@ std::shared_ptr<Session> Network::Connection::GetSession(NetworkUtils::TSessionI
     return result;
 }
 
-void Network::Connection::StartSession(NetworkUtils::TSessionId sessionId)
+void Network::Connection::StartSession(Network::TSessionId sessionId)
 {
     auto session = GetSession(sessionId);
     if (session)
@@ -110,7 +110,7 @@ void Network::Connection::StartSession(NetworkUtils::TSessionId sessionId)
     }
 }
 
-void Network::Connection::StopSession(NetworkUtils::TSessionId sessionId)
+void Network::Connection::StopSession(Network::TSessionId sessionId)
 {
     auto session = GetSession(sessionId);
     if (session)

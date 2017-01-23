@@ -1,7 +1,7 @@
 #pragma once
 #include "NetworkMessage.h"
-#include <cereal/types/polymorphic.hpp>
-namespace NetworkUtils {
+
+namespace Network {
 class Pong : public NetworkMessage
 {
 public:

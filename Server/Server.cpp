@@ -21,28 +21,27 @@
 
 Server::Server(boost::asio::io_service& ioService, const boost::asio::ip::tcp::endpoint& endpoint) :
     m_acceptor(ioService, endpoint),
-    m_ioService(ioService),
-    m_session(nullptr)
+    m_ioService(ioService)
 {
     DoAccept();
 }
 
 void Server::DoAccept()
 {
-    m_session = std::make_shared<Network::TCPSession>(1, m_ioService);
-    m_acceptor.async_accept(m_session->GetSocket(),
-        [this](boost::system::error_code ec)
+    auto session = std::make_shared<Network::TCPSession>(1, m_ioService);
+    m_acceptor.async_accept(session->GetSocket(),
+        [this, session](boost::system::error_code ec)
     {
         if (!ec)
         {
-            m_session->Start();
+            session->Start();
         }
         else
         {
             LOG_ERR("Can't create client session. Boost error:[%s]", ec.message());
         }
 
-        //DoAccept();
+        DoAccept();
     });
 }
 

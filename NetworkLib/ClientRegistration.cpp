@@ -1,6 +1,6 @@
 #include "ClientRegistration.h"
 
-namespace NetworkUtils {
+namespace Network {
 
 ClientRegistration::ClientRegistration()
 : NetworkMessage(MessageType::REGISTRATION)

@@ -3,7 +3,7 @@
 #include "Pong.h"
 #include "Header.h"
 
-namespace NetworkUtils {
+namespace Network {
 std::shared_ptr<NetworkMessage> NetworkMessage::Create(MessageType type)
 {
     std::shared_ptr<NetworkMessage> message(nullptr);
@@ -52,7 +52,7 @@ std::uint64_t NetworkMessage::GetMessageSize() const
     return m_size;
 }
 
-NetworkUtils::MessageType NetworkMessage::GetType() const
+Network::MessageType NetworkMessage::GetType() const
 {
     return m_type;
 }

@@ -1,7 +1,7 @@
 #include "Session.h"
 
 namespace Network {
-Session::Session(NetworkUtils::TSessionId sessionId)
+Session::Session(Network::TSessionId sessionId)
 : m_sessionId(sessionId)
 {
 }
@@ -10,7 +10,7 @@ Session::~Session()
 {
 }
 
-NetworkUtils::TSessionId Session::GetId() const
+Network::TSessionId Session::GetId() const
 {
     return m_sessionId;
 }

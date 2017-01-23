@@ -4,7 +4,7 @@
 #include <cstdint>
 
 
-namespace NetworkUtils {
+namespace Network {
 
 //using TUiid = boost::uuids::uuid;
 

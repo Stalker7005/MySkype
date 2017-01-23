@@ -6,7 +6,7 @@
 #include "NetworkMessage.h"
 #include "Logger.h"
 
-using namespace NetworkUtils;
+using namespace Network;
 //using namespace Serialization;
 
 TEST_CASE("SerializationTest")

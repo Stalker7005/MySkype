@@ -25,6 +25,8 @@ set(CommonHeaders
 	Connection.h
     Session.h
 	TCPSession.h
+	ISessionListener.h
+	SessionProvider.h
     )
 	
 set(CommonSources

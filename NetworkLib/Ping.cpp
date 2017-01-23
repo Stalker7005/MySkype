@@ -1,5 +1,5 @@
 #include "Ping.h"
-namespace NetworkUtils {
+namespace Network {
 
 Ping::Ping(): NetworkMessage(MessageType::PING)
 {}

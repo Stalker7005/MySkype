@@ -4,7 +4,7 @@
 #include "FileUtils.h"
 #include "ProcessUtils.h"
 #include "TCPSession.h"
-using namespace NetworkUtils;
+using namespace Network;
 
 Client::Client(boost::asio::io_service& io_service, tcp::resolver::iterator endpointIterator) : 
 m_ioService(io_service)
@@ -17,7 +17,7 @@ void Client::OnRead(const std::shared_ptr<NetworkMessage>& message)
     std::cout << "Message readed" << std::endl;
 }
 
-void Client::Post(const std::shared_ptr<NetworkUtils::NetworkMessage>& message)
+void Client::Post(const std::shared_ptr<Network::NetworkMessage>& message)
 {
     m_session->Post(message);
 }
@@ -25,14 +25,13 @@ void Client::Post(const std::shared_ptr<NetworkUtils::NetworkMessage>& message)
 void Client::DoConnect(tcp::resolver::iterator endpointIterator)
 {
     m_session = std::make_shared<Network::TCPSession>(1, m_ioService);
-    auto message = NetworkUtils::NetworkMessage::Create(NetworkUtils::MessageType::PING);
+    auto message = Network::NetworkMessage::Create(Network::MessageType::PING);
     boost::asio::async_connect(m_session->GetSocket(), endpointIterator, [this](const boost::system::error_code& ec,
         boost::asio::ip::tcp::resolver::iterator iterator)
     {
         if (!ec)
         {
             m_session->Read(std::bind(&Client::OnRead, this, std::placeholders::_1));
-            //m_session->Read(std::bind(&Client::OnRead, this, std::placeholders::_1));
         }
     });
 }
@@ -58,7 +57,7 @@ int main(int argc, char* argv[])
         std::cout << "Sending ping" << std::endl;
         std::thread t([&ioService]() {ioService.run();});
 
-        auto message = NetworkUtils::NetworkMessage::Create(MessageType::PING);
+        auto message = Network::NetworkMessage::Create(MessageType::PING);
         
         while (true)
         {

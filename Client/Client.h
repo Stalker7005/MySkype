@@ -19,11 +19,11 @@ public:
     Client(boost::asio::io_service& io_service,
         tcp::resolver::iterator endpoint_iterator);
 
-    void Post(const std::shared_ptr<NetworkUtils::NetworkMessage>& message);
+    void Post(const std::shared_ptr<Network::NetworkMessage>& message);
 
 private:
     void DoConnect(tcp::resolver::iterator endpointIterator);
-    void OnRead(const std::shared_ptr<NetworkUtils::NetworkMessage>& message);
+    void OnRead(const std::shared_ptr<Network::NetworkMessage>& message);
 
 private:
     boost::asio::io_service& m_ioService;

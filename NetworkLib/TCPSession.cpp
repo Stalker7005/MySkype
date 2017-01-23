@@ -1,16 +1,18 @@
 #include "TCPSession.h"
 #include "Logger.h"
 
-using namespace NetworkUtils;
+using namespace Network;
 using namespace boost::asio::ip;
 namespace Network {
-TCPSession::TCPSession(NetworkUtils::TSessionId sessionId, TIOService& ioService) 
+TCPSession::TCPSession(Network::TSessionId sessionId, TIOService& ioService)
 : Session(sessionId),
-  m_socket(ioService),
-  m_inMsgBlob(std::make_shared<Blob>()),
-  m_outMsgBlob(std::make_shared<Blob>()),
-  m_serializer(std::make_unique<Serializer>()),
-  m_ioService(ioService)
+m_socket(ioService),
+m_inMsgBlob(std::make_shared<Blob>()),
+m_outMsgBlob(std::make_shared<Blob>()),
+m_serializer(std::make_unique<Serializer>()),
+m_ioService(ioService),
+m_sendStrand(ioService),
+m_recvStrand(ioService)
 {
 
 }
@@ -20,7 +22,7 @@ TCPSession::~TCPSession()
 
 }
 
-void TCPSession::Post(const std::shared_ptr<NetworkUtils::NetworkMessage>& message)
+void TCPSession::Post(const std::shared_ptr<Network::NetworkMessage>& message)
 {
     auto handler = [this, message]()
     {
@@ -30,8 +32,8 @@ void TCPSession::Post(const std::shared_ptr<NetworkUtils::NetworkMessage>& messa
             DoWrite();
         }
     };
-
-    m_ioService.post(handler);
+    
+    m_ioService.post(m_sendStrand.wrap(handler));
 }
 
 void TCPSession::Read(TCallback callback)
@@ -42,12 +44,12 @@ void TCPSession::Read(TCallback callback)
         DoReadHeader();
     };
     
-    m_ioService.post(handler);
+    m_ioService.post(m_recvStrand.wrap(handler));
 }
 
 void TCPSession::DoReadHeader()
 {
-    auto headerSize = NetworkUtils::NetworkMessage::GetHeaderSize();
+    auto headerSize = Network::NetworkMessage::GetHeaderSize();
     m_inMsgBlob->Resize(headerSize);
     auto self = shared_from_this();
 
@@ -57,7 +59,7 @@ void TCPSession::DoReadHeader()
     {
         if (!ec)
         {
-            auto message = NetworkUtils::NetworkMessage::Create(MessageType::BASE);
+            auto message = Network::NetworkMessage::Create(MessageType::BASE);
             message->DeserializeBlob(m_inMsgBlob);
 
             DoReadBody(message);
@@ -70,7 +72,7 @@ void TCPSession::DoReadHeader()
     });
 }
 
-void TCPSession::DoReadBody(const std::shared_ptr<NetworkUtils::NetworkMessage>& message)
+void TCPSession::DoReadBody(const std::shared_ptr<Network::NetworkMessage>& message)
 {
     m_inMsgBlob->Clear();
 
@@ -87,7 +89,7 @@ void TCPSession::DoReadBody(const std::shared_ptr<NetworkUtils::NetworkMessage>&
             if (m_readCallback)
             {
                 auto messageType = message->GetType();
-                auto message = NetworkUtils::NetworkMessage::Create(messageType);
+                auto message = Network::NetworkMessage::Create(messageType);
                 message->DeserializeBlob(m_inMsgBlob);
                 m_readCallback(message);
             }

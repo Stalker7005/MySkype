@@ -1,6 +1,6 @@
 #include "Pong.h"
 
-namespace NetworkUtils {
+namespace Network {
 Pong::Pong() : NetworkMessage(MessageType::PONG)
 {}
 

@@ -1,7 +1,7 @@
 #pragma once
 #include "NetworkDefs.h"
 
-namespace NetworkUtils {
+namespace Network {
 class Header
 {
 public:

@@ -26,11 +26,11 @@ public:
     using TIOService = boost::asio::io_service;
 
 public:
-    TCPSession(NetworkUtils::TSessionId sessionId, TIOService& ioService);
+    TCPSession(Network::TSessionId sessionId, TIOService& ioService);
     ~TCPSession();
 
 public:
-    void Post(const std::shared_ptr<NetworkUtils::NetworkMessage>& message) override;
+    void Post(const std::shared_ptr<Network::NetworkMessage>& message) override;
     void Read(TCallback callback) override;
     TSocket& GetSocket();
 
@@ -43,18 +43,8 @@ protected:
 
 private:
     void DoReadHeader();
-
-    void DoReadBody(const std::shared_ptr<NetworkUtils::NetworkMessage>& message);
-
+    void DoReadBody(const std::shared_ptr<Network::NetworkMessage>& message);
     void DoWrite();
-
-    void OnPing()
-    {
-        auto message = NetworkUtils::NetworkMessage::Create(NetworkUtils::MessageType::PONG);
-        std::cout << "Pong" << std::endl;
-
-        Post(message);
-    }
 
 private:
     TIOService& m_ioService;
@@ -62,9 +52,11 @@ private:
     Session::TCallback m_readCallback;
 
 private:
-    std::deque<std::shared_ptr<NetworkUtils::NetworkMessage>> m_outputMessages;
+    std::deque<std::shared_ptr<Network::NetworkMessage>> m_outputMessages;
     std::shared_ptr<Blob> m_inMsgBlob;
     std::shared_ptr<Blob> m_outMsgBlob;
     std::unique_ptr<Serializer> m_serializer;
+    boost::asio::strand m_sendStrand;
+    boost::asio::strand m_recvStrand;
 };
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include "NetworkMessage.h"
-namespace NetworkUtils {
+namespace Network {
 class Ping : public NetworkMessage
 {
 public:
