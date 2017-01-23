@@ -1,7 +1,6 @@
 #pragma once
 #include "NetworkMessage.h"
 #include "CommonDefs.h"
-#include <cereal/types/polymorphic.hpp>
 
 namespace NetworkUtils {
 class ClientRegistration : public NetworkMessage
@@ -9,13 +8,6 @@ class ClientRegistration : public NetworkMessage
 public:
     ClientRegistration();
     ~ClientRegistration() = default;
-
-public:
-    template<typename Archive>
-    void serialize(Archive& archive)
-    {
-        archive(m_firstName, m_secondName, m_age, m_password, m_loginName, m_groupsTags);
-    }
 
 public:
     void SetFirstName(const std::wstring& firstName);

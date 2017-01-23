@@ -1,3 +1,4 @@
+#pragma  once
 #include <iostream>
 #include <cstdlib>
 #include <deque>
@@ -12,7 +13,6 @@
 #include <boost/asio.hpp>
 
 #include "NetworkMessage.h"
-#include "Blob.h"
 #include "Serializer.h"
 #include "RunningContext.h"
 #include "Session.h"
@@ -44,10 +44,9 @@ protected:
 private:
     void DoReadHeader();
 
-    void DoReadBody(const std::shared_ptr<NetworkUtils::Header>& header);
-    void DoWriteHeader();
+    void DoReadBody(const std::shared_ptr<NetworkUtils::NetworkMessage>& message);
 
-    void DoWriteBody(const std::shared_ptr<NetworkUtils::NetworkMessage>& outMsg);
+    void DoWrite();
 
     void OnPing()
     {
@@ -64,9 +63,8 @@ private:
 
 private:
     std::deque<std::shared_ptr<NetworkUtils::NetworkMessage>> m_outputMessages;
-    std::shared_ptr<Serialization::Blob> m_inMsgHeaderBlob;
-    std::shared_ptr<Serialization::Blob> m_inMsgBodyBlob;
-    std::shared_ptr<Serialization::Blob> m_outMsgBlob;
-    std::unique_ptr<Serialization::Serializer> m_serializer;
+    std::shared_ptr<Blob> m_inMsgBlob;
+    std::shared_ptr<Blob> m_outMsgBlob;
+    std::unique_ptr<Serializer> m_serializer;
 };
 }

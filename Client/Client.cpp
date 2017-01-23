@@ -9,7 +9,32 @@ using namespace NetworkUtils;
 Client::Client(boost::asio::io_service& io_service, tcp::resolver::iterator endpointIterator) : 
 m_ioService(io_service)
 {
+    DoConnect(endpointIterator);
+}
 
+void Client::OnRead(const std::shared_ptr<NetworkMessage>& message)
+{
+    std::cout << "Message readed" << std::endl;
+}
+
+void Client::Post(const std::shared_ptr<NetworkUtils::NetworkMessage>& message)
+{
+    m_session->Post(message);
+}
+
+void Client::DoConnect(tcp::resolver::iterator endpointIterator)
+{
+    m_session = std::make_shared<Network::TCPSession>(1, m_ioService);
+    auto message = NetworkUtils::NetworkMessage::Create(NetworkUtils::MessageType::PING);
+    boost::asio::async_connect(m_session->GetSocket(), endpointIterator, [this](const boost::system::error_code& ec,
+        boost::asio::ip::tcp::resolver::iterator iterator)
+    {
+        if (!ec)
+        {
+            m_session->Read(std::bind(&Client::OnRead, this, std::placeholders::_1));
+            //m_session->Read(std::bind(&Client::OnRead, this, std::placeholders::_1));
+        }
+    });
 }
 
 int main(int argc, char* argv[])
@@ -18,28 +43,27 @@ int main(int argc, char* argv[])
     {
         LOG_INIT();
 
-
         if (argc != 3)
         {
             std::cerr << "Usage: chat_client <host> <port>\n";
             return 1;
         }
 
-        std::shared_ptr<boost::asio::io_service> ioService;
-        ioService.reset(new boost::asio::io_service);
-        
+        boost::asio::io_service ioService;
 
-        tcp::resolver resolver(*ioService);
+        tcp::resolver resolver(ioService);
         auto endpoint_iterator = resolver.resolve({ argv[1], argv[2] });
-        std::shared_ptr<Client> c = std::make_shared<Client>(*ioService, endpoint_iterator);
+        std::shared_ptr<Client> c = std::make_shared<Client>(ioService, endpoint_iterator);
 
-        auto session = std::make_shared<Network::TCPSession>(1, *ioService);
-        auto message = NetworkUtils::NetworkMessage::Create(NetworkUtils::MessageType::PING);
         std::cout << "Sending ping" << std::endl;
+        std::thread t([&ioService]() {ioService.run();});
+
+        auto message = NetworkUtils::NetworkMessage::Create(MessageType::PING);
         
-
-
-        std::thread t([&ioService]() {ioService->run();});
+        while (true)
+        {
+            c->Post(message);
+        }
         t.join();
 
     }

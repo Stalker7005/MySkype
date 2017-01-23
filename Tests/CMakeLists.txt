@@ -16,7 +16,7 @@ include_directories(
                     ${LOG4CPLUS_INCLUDE}
                     ../ODBCHelperLib
                     ../BaseObjects
-                    ../SerealizationUtilsLib
+                    ../SerializationLib
                     ../NetworkLib
                     ..
 					.)
@@ -25,7 +25,7 @@ target_link_libraries(
 					  ${PROJECT_NAME} 
                       ${Boost_LIBRARIES}
 					  ODBCHelperLib
-                      SerealizationUtilsLib
+                      SerializationLib
                       BaseObjects
                       NetworkLib
 					  )

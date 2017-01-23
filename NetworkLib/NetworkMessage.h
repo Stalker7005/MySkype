@@ -2,29 +2,16 @@
 #include <memory>
 #include <cstdint>
 #include <utility>
-
-#include <cereal/archives/binary.hpp>
-#include <cereal/archives/portable_binary.hpp>
-#include <cereal/archives/json.hpp>
-#include <cereal/archives/xml.hpp>
-#include <cereal/types/polymorphic.hpp>
-
+#include "ISerializable.h"
 #include "NetworkDefs.h"
 #include "Header.h"
 
 namespace NetworkUtils{
-class NetworkMessage
+class NetworkMessage: public ISerializable
 {
 public:
     NetworkMessage();
     virtual ~NetworkMessage() {}
-
-public:
-    template<typename Archive>
-    void serialize(Archive& archive)
-    {
-        archive(m_header);
-    }
 
 public:
     static std::shared_ptr<NetworkMessage> Create(MessageType type);
@@ -36,7 +23,6 @@ public:
 
 public:
     MessageType GetType() const;
-    std::shared_ptr<Header> GetHeader();
 
 public:
     NetworkMessage(const NetworkMessage&) = delete;
@@ -46,8 +32,12 @@ protected:
     NetworkMessage(MessageType type);
     NetworkMessage(MessageType type, TMessageSize size);
 
+    void Serialize(SerializerBase& serializer) const override;
+    void Deserialize(DeserializerBase& deserializer) override;
+
 private:
-     std::shared_ptr<Header> m_header;
+    std::uint64_t m_size;
+    MessageType m_type;
 };
 }
 

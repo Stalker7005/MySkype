@@ -39,27 +39,22 @@ std::shared_ptr<NetworkMessage> NetworkMessage::Create(MessageType type)
 
 std::uint8_t NetworkMessage::GetHeaderSize()
 {
-    return Header::GetHeaderSize();
+    return (sizeof(m_size) + sizeof(m_type));
 }
 
 void NetworkMessage::SetMessageSize(std::uint64_t size)
 {
-    m_header->SetMessageSize(size);
+    m_size = size + NetworkMessage::GetHeaderSize();
 }
 
 std::uint64_t NetworkMessage::GetMessageSize() const
 {
-    return m_header->GetMessageSize();
+    return m_size;
 }
 
 NetworkUtils::MessageType NetworkMessage::GetType() const
 {
-    return static_cast<MessageType>(m_header->GetType());
-}
-
-std::shared_ptr<Header> NetworkMessage::GetHeader()
-{
-    return m_header;
+    return m_type;
 }
 
 NetworkMessage::NetworkMessage(MessageType type)
@@ -73,8 +68,19 @@ NetworkMessage::NetworkMessage()
 }
 
 NetworkMessage::NetworkMessage(MessageType type, TMessageSize size)
-: m_header(std::make_shared<Header>(type, size))
+: m_type(type),
+m_size(size + NetworkMessage::GetHeaderSize())
 {}
+
+void NetworkMessage::Serialize(SerializerBase& serializer) const
+{
+    serializer.Add(m_size).Add(m_type);
+}
+
+void NetworkMessage::Deserialize(DeserializerBase& deserializer)
+{
+    deserializer.Get(m_size).Get(m_type);
+}
 
 }
 

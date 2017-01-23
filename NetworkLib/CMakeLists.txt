@@ -50,7 +50,7 @@ include_directories(
 					${Boost_INCLUDE_DIRS}
                     ${LOG4CPLUS_INCLUDE}
                     ../BaseObjects
-                    ../SerealizationUtilsLib
+                    ../SerializationLib
                     ../ThreadsUtilsLib
 				    )
 

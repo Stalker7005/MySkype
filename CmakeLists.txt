@@ -60,6 +60,7 @@ add_definitions(-DBUILD_LINUX)
 endif(UNIX)
 
 include_directories(${CEREAL_INCLUDE})
+add_subdirectory(SerializationLib)
 add_subdirectory(ServerManagers)
 add_subdirectory(ServerObjects)
 add_subdirectory(ODBCHelperLib)
@@ -69,5 +70,4 @@ add_subdirectory(ThreadsUtilsLib)
 add_subdirectory(Client)
 add_subdirectory(Server)
 add_subdirectory(NetworkLib)
-add_subdirectory(SerealizationUtilsLib)
 

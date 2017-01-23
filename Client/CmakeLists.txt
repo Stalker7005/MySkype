@@ -19,7 +19,7 @@ include_directories(
 					${LOG4CPLUS_INCLUDE}
 					../ODBCHelperLib
 					../NetworkLib
-                    ../SerealizationUtilsLib
+                    ../SerializationLib
                     ../BaseObjects
                     ../ThreadsUtilsLib
 				    )
@@ -31,7 +31,7 @@ target_link_libraries(
 					  ${LOG4CPLUS_LIB_DIRS}
 					  ODBCHelperLib
 					  NetworkLib
-                      SerealizationUtilsLib
+                      SerializationLib
                       BaseObjects
                       ThreadsUtilsLib
 					  )

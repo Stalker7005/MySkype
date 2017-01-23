@@ -20,28 +20,29 @@
 #include "Logger.h"
 
 Server::Server(boost::asio::io_service& ioService, const boost::asio::ip::tcp::endpoint& endpoint) :
-    m_acceptor(ioService, endpoint)
+    m_acceptor(ioService, endpoint),
+    m_ioService(ioService),
+    m_session(nullptr)
 {
     DoAccept();
 }
 
 void Server::DoAccept()
 {
-    auto session = std::make_shared<Network::TCPSession>(1, m_ioService);
-
-    m_acceptor.async_accept(session->GetSocket(),
-        [this, session](boost::system::error_code ec)
+    m_session = std::make_shared<Network::TCPSession>(1, m_ioService);
+    m_acceptor.async_accept(m_session->GetSocket(),
+        [this](boost::system::error_code ec)
     {
         if (!ec)
         {
-            session->Start();
+            m_session->Start();
         }
         else
         {
             LOG_ERR("Can't create client session. Boost error:[%s]", ec.message());
         }
 
-        DoAccept();
+        //DoAccept();
     });
 }
 
@@ -63,21 +64,10 @@ int main(int argc, char* argv[])
         std::list<Server> servers;
         for (int i = 1; i < argc; ++i)
         {
-            
+            boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), std::atoi(argv[i]));
             servers.emplace_back(io_service, endpoint);
         }
-        std::shared_ptr<boost::asio::io_service> ioService;
-        ioService.reset(new boost::asio::io_service);
 
-        boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), std::atoi(argv[i]));
-        auto session = std::make_shared<Network::TCPSession>(1, *ioService);
-        auto message = NetworkUtils::NetworkMessage::Create(NetworkUtils::MessageType::PING);
-        std::cout << "Sending ping" << std::endl;
-
-
-
-        std::thread t([&ioService]() {ioService->run();});
-        t.join();
         io_service.run();
     }
     catch (std::exception& e)

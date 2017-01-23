@@ -1,6 +1,5 @@
 #pragma once
 #include "NetworkDefs.h"
-#include <cereal/types/polymorphic.hpp>
 
 namespace NetworkUtils {
 class Header
@@ -10,12 +9,6 @@ public:
     Header(MessageType type);
     Header(MessageType type, TMessageSize size);
     ~Header() = default;
-    
-    template<typename Archive>
-    void serialize(Archive& archive)
-    {
-        archive(m_size, static_cast<TMessageNumericType>(m_type));
-    }
 
     static THeaderSize GetHeaderSize();
 

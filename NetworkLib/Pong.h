@@ -7,13 +7,10 @@ class Pong : public NetworkMessage
 public:
     Pong();
 
-    template<typename Archive>
-    void serialize(Archive& archive)
-    {
-        archive(cereal::base_class<NetworkMessage>(this));
-    }
+    void Serialize(SerializerBase& serializer) const override;
+    void Deserialize(DeserializerBase& deserializer) override;
+
 };
 }
-CEREAL_REGISTER_TYPE(NetworkUtils::Pong);
 
 

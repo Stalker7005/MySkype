@@ -17,7 +17,7 @@ include_directories(
 					${Boost_INCLUDE_DIRS}
                     ${LOG4CPLUS_INCLUDE}
 					../NetworkLib
-                    ../SerealizationUtilsLib
+                    ../SerializationLib
                     ../ThreadsUtilsLib
                     ../BaseObjects
 				    )
@@ -26,7 +26,7 @@ target_link_libraries(${PROJECT_NAME}
 					  ${Boost_LIBRARIES}
 					  ${LOG4CPLUS_LIB_DIRS} 
 					  NetworkLib
-                      SerealizationUtilsLib
+                      SerializationLib
                       ThreadsUtilsLib
                       BaseObjects
 					  )

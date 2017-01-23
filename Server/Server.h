@@ -1,5 +1,6 @@
 #include <boost/asio.hpp>
 #include <memory>
+#include "TCPSession.h"
 
 class Server
 {
@@ -17,6 +18,7 @@ private:
     void DoAccept();
 
 private:
+    std::shared_ptr<Network::TCPSession> m_session;
     TAcceptor m_acceptor;
-    TIOService m_ioService;
+    TIOService& m_ioService;
 };

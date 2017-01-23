@@ -1,19 +1,14 @@
 #pragma once
 #include "NetworkMessage.h"
-#include <cereal/types/polymorphic.hpp>
 namespace NetworkUtils {
 class Ping : public NetworkMessage
 {
 public:
     Ping();
 
-    template<typename Archive>
-    void serialize(Archive& archive)
-    {
-        archive(cereal::base_class<NetworkMessage>(this));
-    }
+    virtual void Serialize(SerializerBase& serializer) const override;
+    virtual void Deserialize(DeserializerBase& deserializer) override;
 };
 }
-CEREAL_REGISTER_TYPE(NetworkUtils::Ping);
 
 
