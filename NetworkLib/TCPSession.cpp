@@ -14,37 +14,23 @@ m_ioService(ioService),
 m_sendStrand(ioService),
 m_recvStrand(ioService)
 {
-
 }
 
 TCPSession::~TCPSession()
-{
+{}
 
-}
-
-void TCPSession::Post(const std::shared_ptr<Network::NetworkMessage>& message)
+void TCPSession::Post(const std::shared_ptr<Blob>& blob)
 {
-    auto handler = [this, message]()
+    auto handler = [this, blob]()
     {
-        m_outputMessages.emplace_back(message);
+        m_outputMessages.emplace_back(blob);
         if (!m_outputMessages.empty())
         {
             DoWrite();
         }
     };
-    
-    m_ioService.post(m_sendStrand.wrap(handler));
-}
 
-void TCPSession::Read(TCallback callback)
-{
-    auto handler = [this, callback]()
-    {
-        m_readCallback = callback;
-        DoReadHeader();
-    };
-    
-    m_ioService.post(m_recvStrand.wrap(handler));
+    m_ioService.post(m_sendStrand.wrap(handler));
 }
 
 void TCPSession::DoReadHeader()
@@ -82,17 +68,11 @@ void TCPSession::DoReadBody(const std::shared_ptr<Network::NetworkMessage>& mess
     auto self = shared_from_this();
     boost::asio::async_read(m_socket,
         boost::asio::buffer(m_inMsgBlob->GetData(), messageSize),
-        [this, self, message](boost::system::error_code ec, std::size_t /*length*/)
+        [this, self](boost::system::error_code ec, std::size_t /*length*/)
     {
         if (!ec)
         {
-            if (m_readCallback)
-            {
-                auto messageType = message->GetType();
-                auto message = Network::NetworkMessage::Create(messageType);
-                message->DeserializeBlob(m_inMsgBlob);
-                m_readCallback(message);
-            }
+            FireRecv(m_inMsgBlob);
             DoReadHeader();
         }
         else
@@ -105,12 +85,11 @@ void TCPSession::DoReadBody(const std::shared_ptr<Network::NetworkMessage>& mess
 
 void TCPSession::DoWrite()
 {
-    auto message = m_outputMessages.front();
-    m_outMsgBlob = message->SerializeBlob();
-    auto size = message->GetMessageSize();
+    auto blob = m_outputMessages.front();
+    auto size = blob->GetSize();
     auto self = shared_from_this();
     boost::asio::async_write(m_socket,
-        boost::asio::buffer(m_outMsgBlob->GetData(), message->GetMessageSize()),
+        boost::asio::buffer(m_outMsgBlob->GetData(), size),
         [this, self](boost::system::error_code ec, std::size_t /*length*/)
     {
         if (!ec)
@@ -131,7 +110,13 @@ void TCPSession::DoWrite()
 
 bool TCPSession::StartInternal()
 {
-    DoReadHeader();
+    auto handler = [this]()
+    {
+        DoReadHeader();
+    };
+
+    m_ioService.post(m_recvStrand.wrap(handler));
+
     return true;
 }
 
@@ -145,18 +130,41 @@ bool TCPSession::StopInternal()
 
 bool TCPSession::IsCanStart()
 {
-    return true;
+    return m_socket.is_open();
 }
 
 void TCPSession::CloseConnecton()
 {
-    m_ioService.post([this]() { m_socket.close(); });
+    if (m_socket.is_open())
+    {
+        {
+            boost::system::error_code error;
+            m_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
+            if (error)
+            {
+                LOG_WARN("Error can't shutdown socket! Error:%s", error.message());
+            }
+        }
+        
+    
+        {
+            boost::system::error_code error;
+            m_socket.close(error);
+            if (error)
+            {
+                LOG_WARN("Error can't close socket! Erorr:%s", error.message());
+            }
+        }
+
+        FireClose(GetId());
+    }
 }
 
 TCPSession::TSocket& TCPSession::GetSocket()
 {
     return m_socket;
 }
+
 }
 
 

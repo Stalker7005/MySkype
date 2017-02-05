@@ -13,6 +13,7 @@ TEST_CASE("SerializationTest")
 {
     auto message1 = NetworkMessage::Create(MessageType::PING);
     auto blob = message1->SerializeBlob();
+
     auto message2 = NetworkMessage::Create(MessageType::PONG);
     message2->DeserializeBlob(blob);
 }

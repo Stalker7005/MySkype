@@ -2,14 +2,24 @@
 
 namespace Network {
 
-Network::SessionProvider::TConnection SessionProvider::AddReadListener(TReadCallback::slot_function_type slot)
+Network::SessionProvider::TConnection SessionProvider::AddRecvListener(TReadCallback::slot_function_type slot)
 {
-    m_readCallback.connect(slot);
+    return m_readCallback.connect(slot);
 }
 
-void SessionProvider::FireReadListener(const std::shared_ptr<NetworkMessage>& message)
+Network::SessionProvider::TConnection SessionProvider::AddCloseListener(TCloseConnectionCallback::slot_function_type slot)
 {
-    m_readCallback(message);
+    return m_closeConnectionCallback.connect(slot);
+}
+
+void SessionProvider::FireRecv(const std::shared_ptr<Blob>& blob)
+{
+    m_readCallback(blob);
+}
+
+void SessionProvider::FireClose(TSessionId id)
+{
+    m_closeConnectionCallback(id);
 }
 
 }

@@ -4,36 +4,39 @@
 #include "FileUtils.h"
 #include "ProcessUtils.h"
 #include "TCPSession.h"
+#include "Serializer.h"
+
 using namespace Network;
 
 Client::Client(boost::asio::io_service& io_service, tcp::resolver::iterator endpointIterator) : 
 m_ioService(io_service)
 {
+    m_session = std::make_shared<Network::TCPSession>(1, m_ioService);
+    m_readConnection = m_session->AddRecvListener(std::bind(&Client::OnRead, shared_from_this(), std::placeholders::_1));
+    
     DoConnect(endpointIterator);
 }
 
-void Client::OnRead(const std::shared_ptr<NetworkMessage>& message)
+void Client::OnRead(const std::shared_ptr<Blob>& blob)
 {
-    std::cout << "Message readed" << std::endl;
-}
-
-void Client::Post(const std::shared_ptr<Network::NetworkMessage>& message)
-{
-    m_session->Post(message);
+    std::cout << "Blob:" << blob->GetData() << blob->GetSize() << std::endl;
 }
 
 void Client::DoConnect(tcp::resolver::iterator endpointIterator)
 {
-    m_session = std::make_shared<Network::TCPSession>(1, m_ioService);
-    auto message = Network::NetworkMessage::Create(Network::MessageType::PING);
     boost::asio::async_connect(m_session->GetSocket(), endpointIterator, [this](const boost::system::error_code& ec,
         boost::asio::ip::tcp::resolver::iterator iterator)
     {
         if (!ec)
         {
-            m_session->Read(std::bind(&Client::OnRead, this, std::placeholders::_1));
+            m_session->Start();
         }
     });
+}
+
+void Client::Post(const std::shared_ptr<Blob>& blob)
+{
+    m_session->Post(blob);
 }
 
 int main(int argc, char* argv[])
@@ -58,10 +61,11 @@ int main(int argc, char* argv[])
         std::thread t([&ioService]() {ioService.run();});
 
         auto message = Network::NetworkMessage::Create(MessageType::PING);
-        
+        auto blob = message->SerializeBlob();
+
         while (true)
         {
-            c->Post(message);
+            c->Post(blob);
         }
         t.join();
 

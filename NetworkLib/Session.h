@@ -4,10 +4,12 @@
 #include "RunningContext.h"
 #include "NetworkDefs.h"
 #include "NetworkMessage.h"
+#include "SessionProvider.h"
 #include <functional>
 
 namespace Network {
-class Session : public ThreadsUtils::RunningContext
+class Session : public ThreadsUtils::RunningContext,
+                public SessionProvider
 {
 public:
     using TCallback = std::function<void(const std::shared_ptr<Network::NetworkMessage>& message)>;
@@ -18,9 +20,8 @@ public:
     
 public:
     Network::TSessionId GetId() const;
-    virtual void Post(const std::shared_ptr<Network::NetworkMessage>& message) = 0;
-    virtual void Read(TCallback callback) = 0;
     
+
 private:
     Network::TSessionId m_sessionId;
 };
