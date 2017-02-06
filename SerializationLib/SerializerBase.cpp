@@ -61,7 +61,7 @@ SerializerBase& SerializerBase::Add(std::int64_t data)
 
 SerializerBase& SerializerBase::Add(bool data_)
 {
-    boost::uint8_t data = data_ ? 1 : 0;
+    std::uint8_t data = data_ ? 1 : 0;
     return Add(data);
 }
 

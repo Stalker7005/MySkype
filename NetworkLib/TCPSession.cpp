@@ -89,7 +89,7 @@ void TCPSession::DoWrite()
     auto size = blob->GetSize();
     auto self = shared_from_this();
     boost::asio::async_write(m_socket,
-        boost::asio::buffer(m_outMsgBlob->GetData(), size),
+        boost::asio::buffer(blob->GetData(), size),
         [this, self](boost::system::error_code ec, std::size_t /*length*/)
     {
         if (!ec)
@@ -110,7 +110,8 @@ void TCPSession::DoWrite()
 
 bool TCPSession::StartInternal()
 {
-    auto handler = [this]()
+    auto self = shared_from_this();
+    auto handler = [this, self]()
     {
         DoReadHeader();
     };

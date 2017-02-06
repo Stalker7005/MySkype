@@ -7,7 +7,7 @@ class ISerializable;
 class DeserializerBase
 {
 public:
-    typedef boost::uint32_t TSize;
+    typedef std::uint32_t TSize;
     typedef std::function<void(const std::uint8_t* data, size_t size)> TGetter;
 
 public:

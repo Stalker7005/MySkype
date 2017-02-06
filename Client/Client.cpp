@@ -12,7 +12,6 @@ Client::Client(boost::asio::io_service& io_service, tcp::resolver::iterator endp
 m_ioService(io_service)
 {
     m_session = std::make_shared<Network::TCPSession>(1, m_ioService);
-    m_readConnection = m_session->AddRecvListener(std::bind(&Client::OnRead, shared_from_this(), std::placeholders::_1));
     
     DoConnect(endpointIterator);
 }
@@ -37,6 +36,24 @@ void Client::DoConnect(tcp::resolver::iterator endpointIterator)
 void Client::Post(const std::shared_ptr<Blob>& blob)
 {
     m_session->Post(blob);
+}
+
+bool Client::StartInternal()
+{
+    m_readConnection = m_session->AddRecvListener(std::bind(&Client::OnRead, shared_from_this(), std::placeholders::_1));
+
+    return true;
+}
+
+bool Client::StopInternal()
+{
+    m_readConnection.release();
+    return true;
+}
+
+bool Client::IsCanStart()
+{
+    return true;
 }
 
 int main(int argc, char* argv[])

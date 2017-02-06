@@ -5,16 +5,17 @@
 #include <boost/make_unique.hpp>
 
 Blob::Blob()
-    : m_size(0)
+    : m_size(50),
+      m_data(std::make_unique<std::uint8_t[]>(m_size))
 {}
 
 Blob::Blob(size_t size)
-    : m_data(boost::make_unique<boost::uint8_t[]>(size))
+    : m_data(std::make_unique<std::uint8_t[]>(size))
     , m_size(size)
 {}
 
 Blob::Blob(const void* data, size_t size)
-    : m_data(boost::make_unique<boost::uint8_t[]>(size))
+    : m_data(std::make_unique<std::uint8_t[]>(size))
     , m_size(size)
 {
     memcpy(m_data.get(), data, m_size);
@@ -96,13 +97,13 @@ void Blob::Resize(size_t size, bool preserve)
         {
             auto prevData = std::move(m_data);
             auto prevSize = m_size;
-            m_data = boost::make_unique<boost::uint8_t[]>(size);
+            m_data = std::make_unique<std::uint8_t[]>(size);
             m_size = size;
             memcpy(m_data.get(), prevData.get(), prevSize);
         }
         else
         {
-            m_data = boost::make_unique<boost::uint8_t[]>(size);
+            m_data = std::make_unique<std::uint8_t[]>(size);
             m_size = size;
         }
     }

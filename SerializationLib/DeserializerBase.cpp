@@ -4,8 +4,8 @@
 #include "ISerializable.h"
 
 DeserializerBase::DeserializerBase(const void* data, size_t size)
-    : m_base(static_cast<const boost::uint8_t* const>(data))
-    , m_data(static_cast<const boost::uint8_t*>(data))
+    : m_base(static_cast<const std::uint8_t* const>(data))
+    , m_data(static_cast<const std::uint8_t*>(data))
     , m_size(size)
 {
     if (!m_data || !m_size)
@@ -75,7 +75,7 @@ DeserializerBase& DeserializerBase::Get(std::int64_t& data)
 
 DeserializerBase& DeserializerBase::Get(bool& data_)
 {
-    boost::uint8_t data;
+    std::uint8_t data;
     Get(data);
     data_ = data ? true : false;
     return *this;

@@ -33,7 +33,7 @@ public:
     void Dispose();
 
 protected:
-    std::unique_ptr<boost::uint8_t[]> m_data;
     size_t m_size;
+    std::unique_ptr<std::uint8_t[]> m_data;
 };
 
