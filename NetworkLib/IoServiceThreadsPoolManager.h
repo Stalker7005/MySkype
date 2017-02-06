@@ -9,15 +9,17 @@ namespace boost
     namespace asio 
     {
         class io_service;
-        class io_service::work;
     }
 }
 
 namespace Network {
-class IoServiceThreadsPoolManager: public ThreadsUtils::RunningContext
+class IoServiceThreadsPoolManager: public ThreadsUtils::RunningContext,
+                                   public std::enable_shared_from_this<IoServiceThreadsPoolManager>
 {
 public:
     static IoServiceThreadsPoolManager& GetInstance();
+    std::shared_ptr<boost::asio::io_service> GetIoService();
+    boost::asio::io_service& Get();
 
 protected:
     bool StartInternal() override;
@@ -37,7 +39,7 @@ private:
 private:
     std::shared_ptr<boost::asio::io_service> m_ioService;
     std::vector<std::thread> m_threads;
-    boost::asio::io_service::work* m_work;
+    void* m_work;
 };
 }
 
