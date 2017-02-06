@@ -2,9 +2,7 @@
 
 namespace Network {
 Network::Connection::Connection()
-    : m_sessionId(0)
 {
-
 }
 
 Network::Connection::~Connection()
@@ -14,9 +12,8 @@ Network::Connection::~Connection()
 
 void Network::Connection::AddSession(const std::shared_ptr<Session>& session)
 {
-    m_sessions.emplace(std::make_pair(m_sessionId, session));
-    LOG_INFO("Added session with id:[%d]", m_sessionId);
-    ++m_sessionId;
+    m_sessions.emplace(std::make_pair(session->GetId(), session));
+    LOG_INFO("Added session with id:[%d]", session->GetId());
 }
 
 void Network::Connection::RemoveSession(Network::TSessionId id)

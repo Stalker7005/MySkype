@@ -25,7 +25,6 @@ public:
     void StopSessions();
 
 private:
-    Network::TSessionId m_sessionId;
     std::unordered_map<Network::TSessionId, std::shared_ptr<Session>> m_sessions;
 };
 
