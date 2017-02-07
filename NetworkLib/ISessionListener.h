@@ -1,12 +1,15 @@
 #pragma once
 #include <memory>
-#include "NetworkMessage.h"
+#include "NetworkDefs.h"
+
+class Blob;
 
 namespace Network {
 class ISessionListener
 {
 public:
-    virtual void OnRead(const std::shared_ptr<NetworkMessage>& message) = 0;
+    virtual void OnRecvData(const std::shared_ptr<Blob>& blob) = 0;
+    virtual void OnCloseSession(TSessionId id) = 0;
 };
 }
 

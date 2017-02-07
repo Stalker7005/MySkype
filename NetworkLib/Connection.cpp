@@ -12,8 +12,12 @@ Network::Connection::~Connection()
 
 void Network::Connection::AddSession(const std::shared_ptr<Session>& session)
 {
-    m_sessions.emplace(std::make_pair(session->GetId(), session));
-    LOG_INFO("Added session with id:[%d]", session->GetId());
+    auto iter = m_sessions.find(session->GetId());
+    if (iter == m_sessions.end())
+    {
+        m_sessions.emplace(std::make_pair(session->GetId(), session));
+        LOG_INFO("Added session with id:[%d]", session->GetId());
+    }
 }
 
 void Network::Connection::RemoveSession(Network::TSessionId id)
@@ -26,7 +30,7 @@ void Network::Connection::RemoveSession(Network::TSessionId id)
     }
     else
     {
-        LOG_WARN("Can't find session to remove");
+        LOG_WARN("Can't find session to remove: %d", id);
     }
 }
 
@@ -77,6 +81,10 @@ void Network::Connection::StartSession(Network::TSessionId sessionId)
     {
         session->Start();
     }
+    else
+    {
+        LOG_ERR("Can't stop session with id: %d", sessionId);
+    }
 }
 
 void Network::Connection::StopSession(Network::TSessionId sessionId)
@@ -86,6 +94,21 @@ void Network::Connection::StopSession(Network::TSessionId sessionId)
     {
         session->Stop();
     }
+    else
+    {
+        LOG_ERR("Can't start session with id: %d", sessionId);
+    }
 }
+
+void Connection::OnRecvData(const std::shared_ptr<Blob>& blob)
+{
+    throw std::logic_error("The method or operation is not implemented.");
+}
+
+void Connection::OnCloseSession(TSessionId id)
+{
+    throw std::logic_error("The method or operation is not implemented.");
+}
+
 }
 

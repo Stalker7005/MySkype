@@ -40,7 +40,7 @@ void Client::Post(const std::shared_ptr<Blob>& blob)
 
 bool Client::StartInternal()
 {
-    m_readConnection = m_session->AddRecvListener(std::bind(&Client::OnRead, shared_from_this(), std::placeholders::_1));
+    m_readConnection = m_session->AddRecvDataListener(std::bind(&Client::OnRead, shared_from_this(), std::placeholders::_1));
 
     return true;
 }

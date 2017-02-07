@@ -12,7 +12,8 @@ Network::IoServiceThreadsPoolManager& IoServiceThreadsPoolManager::GetInstance()
 }
 
 IoServiceThreadsPoolManager::IoServiceThreadsPoolManager()
-: m_work(nullptr)
+: m_work(nullptr),
+  m_numThreads(0)
 {
     m_ioService.reset(new boost::asio::io_service);
 }
@@ -22,7 +23,7 @@ IoServiceThreadsPoolManager::~IoServiceThreadsPoolManager()
 
 bool IoServiceThreadsPoolManager::StartInternal()
 {
-    auto numThreads = std::thread::hardware_concurrency();
+    auto numThreads = m_numThreads > 0 ? m_numThreads : std::thread::hardware_concurrency();
     m_work = new boost::asio::io_service::work(*m_ioService);
 
     for (decltype(numThreads) i = 0; i < numThreads; ++i)
@@ -62,6 +63,16 @@ std::shared_ptr<boost::asio::io_service> IoServiceThreadsPoolManager::GetIoServi
 boost::asio::io_service& IoServiceThreadsPoolManager::Get()
 {
     return *m_ioService;
+}
+
+void IoServiceThreadsPoolManager::SetNumThreads(std::size_t numThreads)
+{
+    m_numThreads = numThreads;
+}
+
+std::size_t IoServiceThreadsPoolManager::GetNumThreads() const
+{
+    return m_numThreads;
 }
 
 }

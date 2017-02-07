@@ -2,10 +2,14 @@
 #include "NetworkDefs.h"
 #include "Logger.h"
 #include "Session.h"
+#include "SessionProvider.h"
+#include "ISessionListener.h"
+
 #include <unordered_map>
 
 namespace Network {
-class Connection
+class Connection: public ISessionListener,
+                  public SessionProvider
 {
 public:
     Connection();
@@ -23,6 +27,10 @@ public:
     void StopSession(Network::TSessionId stopSession);
     void StartSessions();
     void StopSessions();
+
+private:
+    void OnRecvData(const std::shared_ptr<Blob>& blob) override;
+    void OnCloseSession(TSessionId id) override;
 
 private:
     std::unordered_map<Network::TSessionId, std::shared_ptr<Session>> m_sessions;

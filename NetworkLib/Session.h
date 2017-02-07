@@ -20,7 +20,7 @@ public:
     
 public:
     Network::TSessionId GetId() const;
-    
+    virtual void Post(const std::shared_ptr<Blob>& blob) = 0;
 
 private:
     Network::TSessionId m_sessionId;

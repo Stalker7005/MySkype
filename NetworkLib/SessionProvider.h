@@ -14,13 +14,12 @@ public:
     using TConnection = boost::signals2::connection;
 
 public:
-    virtual void Post(const std::shared_ptr<Blob>& blob) = 0;
-    TConnection AddRecvListener(TReadCallback::slot_function_type slot);
-    TConnection AddCloseListener(TCloseConnectionCallback::slot_function_type slot);
+    TConnection AddRecvDataListener(TReadCallback::slot_function_type slot);
+    TConnection AddCloseSessionListener(TCloseConnectionCallback::slot_function_type slot);
 
 protected:
-    void FireRecv(const std::shared_ptr<Blob>& message);
-    void FireClose(TSessionId id);
+    void FireRecvData(const std::shared_ptr<Blob>& message);
+    void FireCloseSession(TSessionId id);
 
 private:
     TReadCallback m_readCallback;

@@ -32,4 +32,3 @@ enum class MessageType : std::uint8_t
 };
 
 }
-    

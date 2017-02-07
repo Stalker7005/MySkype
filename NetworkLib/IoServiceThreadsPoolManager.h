@@ -21,6 +21,9 @@ public:
     std::shared_ptr<boost::asio::io_service> GetIoService();
     boost::asio::io_service& Get();
 
+    void SetNumThreads(std::size_t numThreads);
+    std::size_t GetNumThreads() const;
+
 protected:
     bool StartInternal() override;
     bool StopInternal() override;
@@ -40,6 +43,7 @@ private:
     std::shared_ptr<boost::asio::io_service> m_ioService;
     std::vector<std::thread> m_threads;
     void* m_work;
+    std::size_t m_numThreads;
 };
 }
 
