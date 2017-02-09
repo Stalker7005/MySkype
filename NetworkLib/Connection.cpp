@@ -15,6 +15,7 @@ void Network::Connection::AddSession(const std::shared_ptr<Session>& session)
     auto iter = m_sessions.find(session->GetId());
     if (iter == m_sessions.end())
     {
+        session->AddCloseSessionListener(std::bind(&OnCloseSession, shared_from_this(), _1));
         m_sessions.emplace(std::make_pair(session->GetId(), session));
         LOG_INFO("Added session with id:[%d]", session->GetId());
     }
@@ -100,14 +101,31 @@ void Network::Connection::StopSession(Network::TSessionId sessionId)
     }
 }
 
-void Connection::OnRecvData(const std::shared_ptr<Blob>& blob)
+void Connection::OnRecvData(TSessionId id, const std::shared_ptr<Blob>& blob)
 {
-    throw std::logic_error("The method or operation is not implemented.");
+    auto session = GetSession(id);
+    if (session)
+    {
+        session->Post(blob);
+    }
+    else
+    {
+        LOG_ERR("Can't post message to session with id: %d", id);
+    }
 }
 
 void Connection::OnCloseSession(TSessionId id)
 {
-    throw std::logic_error("The method or operation is not implemented.");
+    auto session = m_sessions.find(id);
+    if (session != m_sessions.end())
+    {
+        m_sessions.erase(session);
+        LOG_INFO("Session closed with id: %d", id);
+    }
+    else
+    {
+        LOG_ERR("Can't close session with id: %d", id);
+    }
 }
 
 }

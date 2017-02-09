@@ -9,7 +9,7 @@ namespace Network {
 class SessionProvider
 {
 public: 
-    using TReadCallback = boost::signals2::signal<void(const std::shared_ptr<Blob>&)>;
+    using TReadCallback = boost::signals2::signal<void(TSessionId sesionId, const std::shared_ptr<Blob>&)>;
     using TCloseConnectionCallback = boost::signals2::signal<void(TSessionId)>;
     using TConnection = boost::signals2::connection;
 

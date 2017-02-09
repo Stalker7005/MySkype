@@ -9,7 +9,8 @@
 
 namespace Network {
 class Connection: public ISessionListener,
-                  public SessionProvider
+                  public SessionProvider,
+                  public std::enable_shared_from_this<Connection>
 {
 public:
     Connection();
@@ -29,7 +30,7 @@ public:
     void StopSessions();
 
 private:
-    void OnRecvData(const std::shared_ptr<Blob>& blob) override;
+    void OnRecvData(TSessionId id, const std::shared_ptr<Blob>& blob) override;
     void OnCloseSession(TSessionId id) override;
 
 private:
