@@ -27,7 +27,9 @@ set(CommonHeaders
 	TCPSession.h
 	ISessionListener.h
 	SessionProvider.h
+    ISessionSendListener.h
     IoServiceThreadsPoolManager.h
+    SessionSendProvider.h
     )
 	
 set(CommonSources
@@ -36,6 +38,7 @@ set(CommonSources
     TCPSession.cpp
     SessionProvider.cpp
     IoServiceThreadsPoolManager.cpp
+    SessionSendProvider.cpp
     )
 	
 set(HeadersLst

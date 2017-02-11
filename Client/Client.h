@@ -34,8 +34,7 @@ private:
 
 private:
     boost::asio::io_service& m_ioService;
-    std::shared_ptr<Network::TCPSession> m_session;
     boost::signals2::scoped_connection m_readConnection;
-    //std::unique_ptr<Network::Connection> m_connection;
+    std::unique_ptr<Network::Connection> m_connection;
 
 };

@@ -12,9 +12,9 @@ Network::SessionProvider::TConnection SessionProvider::AddCloseSessionListener(T
     return m_closeConnectionCallback.connect(slot);
 }
 
-void SessionProvider::FireRecvData(const std::shared_ptr<Blob>& blob)
+void SessionProvider::FireRecvData(TSessionId sesionId, const std::shared_ptr<Blob>& blob)
 {
-    m_readCallback(blob);
+    m_readCallback(sesionId, blob);
 }
 
 void SessionProvider::FireCloseSession(TSessionId id)

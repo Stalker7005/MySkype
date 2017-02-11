@@ -15,7 +15,8 @@ void Network::Connection::AddSession(const std::shared_ptr<Session>& session)
     auto iter = m_sessions.find(session->GetId());
     if (iter == m_sessions.end())
     {
-        session->AddCloseSessionListener(std::bind(&OnCloseSession, shared_from_this(), _1));
+        session->AddRecvDataListener(std::bind(&Connection::OnRecvData, shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+        session->AddCloseSessionListener(std::bind(&Connection::OnCloseSession, shared_from_this(), std::placeholders::_1));
         m_sessions.emplace(std::make_pair(session->GetId(), session));
         LOG_INFO("Added session with id:[%d]", session->GetId());
     }
@@ -106,7 +107,7 @@ void Connection::OnRecvData(TSessionId id, const std::shared_ptr<Blob>& blob)
     auto session = GetSession(id);
     if (session)
     {
-        session->Post(blob);
+        FireSendData(id, blob);
     }
     else
     {
@@ -125,6 +126,19 @@ void Connection::OnCloseSession(TSessionId id)
     else
     {
         LOG_ERR("Can't close session with id: %d", id);
+    }
+}
+
+void Connection::OnSendData(TSessionId sessionId, const std::shared_ptr<Blob>& blob)
+{
+    auto session = GetSession(sessionId);
+    if (session)
+    {
+        session->Post(blob);
+    }
+    else
+    {
+        LOG_ERR("Can't send data to session with id: %d", sessionId);
     }
 }
 

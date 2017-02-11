@@ -3,6 +3,8 @@
 #include "Logger.h"
 #include "Session.h"
 #include "SessionProvider.h"
+#include "SessionSendProvider.h"
+#include "ISessionSendListener.h"
 #include "ISessionListener.h"
 
 #include <unordered_map>
@@ -10,6 +12,8 @@
 namespace Network {
 class Connection: public ISessionListener,
                   public SessionProvider,
+                  public ISessionSendListener,
+                  public SessionSendProvider,
                   public std::enable_shared_from_this<Connection>
 {
 public:
@@ -22,6 +26,8 @@ public:
 
     void RemoveSession(Network::TSessionId id);
     void RemoveSessions();
+
+    void OnSendData(TSessionId sessionId, const std::shared_ptr<Blob>& blob) override;
 
 public:
     void StartSession(Network::TSessionId sessionId);

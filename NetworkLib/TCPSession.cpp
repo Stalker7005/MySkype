@@ -72,7 +72,7 @@ void TCPSession::DoReadBody(const std::shared_ptr<Network::NetworkMessage>& mess
     {
         if (!ec)
         {
-            FireRecvData(m_inMsgBlob);
+            FireRecvData(GetId(), m_inMsgBlob);
             DoReadHeader();
         }
         else

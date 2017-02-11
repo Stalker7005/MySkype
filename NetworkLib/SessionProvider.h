@@ -18,7 +18,7 @@ public:
     TConnection AddCloseSessionListener(TCloseConnectionCallback::slot_function_type slot);
 
 protected:
-    void FireRecvData(const std::shared_ptr<Blob>& message);
+    void FireRecvData(TSessionId sesionId, const std::shared_ptr<Blob>& message);
     void FireCloseSession(TSessionId id);
 
 private:

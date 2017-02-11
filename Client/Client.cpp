@@ -11,7 +11,7 @@ using namespace Network;
 Client::Client(boost::asio::io_service& io_service, tcp::resolver::iterator endpointIterator) : 
 m_ioService(io_service)
 {
-    m_session = std::make_shared<Network::TCPSession>(1, m_ioService);
+    auto session = std::make_shared<Network::TCPSession>(1, m_ioService);
     
     DoConnect(endpointIterator);
 }
@@ -40,7 +40,7 @@ void Client::Post(const std::shared_ptr<Blob>& blob)
 
 bool Client::StartInternal()
 {
-    m_readConnection = m_session->AddRecvDataListener(std::bind(&Client::OnRead, shared_from_this(), std::placeholders::_1));
+    
 
     return true;
 }
