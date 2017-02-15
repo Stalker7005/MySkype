@@ -117,11 +117,11 @@ void Connection::OnRecvData(TSessionId id, const std::shared_ptr<Blob>& blob)
 
 void Connection::OnCloseSession(TSessionId id)
 {
-    auto session = m_sessions.find(id);
-    if (session != m_sessions.end())
+    auto session = GetSession(id);
+    if (session)
     {
-        m_sessions.erase(session);
-        LOG_INFO("Session closed with id: %d", id);
+        session->Stop();
+        RemoveSession(id);
     }
     else
     {
@@ -139,6 +139,19 @@ void Connection::OnSendData(TSessionId sessionId, const std::shared_ptr<Blob>& b
     else
     {
         LOG_ERR("Can't send data to session with id: %d", sessionId);
+    }
+}
+
+void Connection::SendData(TSessionId sessionId, const std::shared_ptr<Blob>& blob)
+{
+    auto session = GetSession(sessionId);
+    if(session)
+    {
+        session->Post(blob);
+    }
+    else
+    {
+        LOG_ERR("Can't send data");
     }
 }
 

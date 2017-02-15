@@ -23,6 +23,7 @@ public:
 public:
     void AddSession(const std::shared_ptr<Session>& session);
     std::shared_ptr<Session> GetSession(Network::TSessionId sessionId);
+    void SendData(TSessionId sessionId, const std::shared_ptr<Blob>& blob);
 
     void RemoveSession(Network::TSessionId id);
     void RemoveSessions();

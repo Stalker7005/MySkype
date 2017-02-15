@@ -1,6 +1,10 @@
 #include <boost/asio.hpp>
 #include <memory>
 #include "TCPSession.h"
+#include "Connection.h"
+
+namespace ServerManagment 
+{
 
 class Server
 {
@@ -21,3 +25,5 @@ private:
     TAcceptor m_acceptor;
     TIOService& m_ioService;
 };
+
+}

@@ -46,12 +46,7 @@
     #include <windows.h>
 #endif
 
-
-
 #include <sql.h>
-
-
-
 #include <sqlext.h>
 
     //Default to ODBC version defined by NANODBC_ODBC_VERSION if provided.

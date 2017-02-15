@@ -11,6 +11,7 @@
 #include "Connection.h"
 #include "TCPSession.h"
 #include "RunningContext.h"
+#include "NetworkDefs.h"
 
 using boost::asio::ip::tcp;
 
@@ -21,7 +22,7 @@ public:
     Client(boost::asio::io_service& io_service,
         tcp::resolver::iterator endpoint_iterator);
 
-    void Post(const std::shared_ptr<Blob>& blob);
+    void Post(Network::TSessionId id, const std::shared_ptr<Blob>& blob);
 
 protected:
     bool StartInternal() override;
@@ -29,12 +30,11 @@ protected:
     bool IsCanStart() override;
 
 private:
-    void DoConnect(tcp::resolver::iterator endpointIterator);
-    void OnRead(const std::shared_ptr<Blob>& blob);
+    void OnSendData(Network::TSessionId id, const std::shared_ptr<Blob>& blob);
 
 private:
     boost::asio::io_service& m_ioService;
     boost::signals2::scoped_connection m_readConnection;
-    std::unique_ptr<Network::Connection> m_connection;
+    std::shared_ptr<Network::Connection> m_connection;
 
 };

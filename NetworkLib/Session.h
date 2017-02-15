@@ -12,6 +12,12 @@ class Session : public ThreadsUtils::RunningContext,
                 public SessionProvider
 {
 public:
+    enum ID : std::uint8_t
+    {
+        MAIN_TCP_SESSION
+    };
+
+public:
     using TCallback = std::function<void(const std::shared_ptr<Network::NetworkMessage>& message)>;
 
 public:

@@ -2,13 +2,16 @@
 #include "NetworkMessage.h"
 
 namespace Network {
-class Pong : public NetworkMessage
+class PongMessage : public NetworkMessage
 {
 public:
-    Pong();
+    PongMessage();
 
+protected:
     void Serialize(SerializerBase& serializer) const override;
     void Deserialize(DeserializerBase& deserializer) override;
+    std::uint64_t GetSizeInternal() const override;
+
 
 };
 }

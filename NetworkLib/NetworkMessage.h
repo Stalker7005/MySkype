@@ -30,10 +30,11 @@ public:
 
 protected:
     NetworkMessage(MessageType type);
-    NetworkMessage(MessageType type, TMessageSize size);
 
     void Serialize(SerializerBase& serializer) const override;
     void Deserialize(DeserializerBase& deserializer) override;
+    
+    virtual std::uint64_t GetSizeInternal() const = 0;
 
 private:
     std::uint64_t m_size;

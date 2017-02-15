@@ -3,11 +3,11 @@
 #include "CommonDefs.h"
 
 namespace Network {
-class ClientRegistration : public NetworkMessage
+class ClientRegistrationMessage : public NetworkMessage
 {
 public:
-    ClientRegistration();
-    ~ClientRegistration() = default;
+    ClientRegistrationMessage();
+    ~ClientRegistrationMessage() = default;
 
 public:
     void SetFirstName(const std::wstring& firstName);
@@ -27,6 +27,10 @@ public:
 
     void SetGroupsTags(const std::vector<TGroupTag>& groupsTags);
     std::vector<TGroupTag> GetGroupsTags() const;
+
+protected:
+    void Serialize(SerializerBase& serializer) const override;
+    void Deserialize(DeserializerBase& deserializer) override;
 
 private:
     std::wstring m_firstName;

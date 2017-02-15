@@ -7,6 +7,7 @@ set(MessagesHeaders
     Pong.h
     ClientRegistration.h
     Header.h
+    ClientLoginMessage.h
 	)
 	
 set(MessagesSources
@@ -15,6 +16,7 @@ set(MessagesSources
     Pong.cpp
     ClientRegistration.cpp
     Header.cpp
+    ClientLoginMessage.cpp
 	)
 	
 set(NetworkDefsHeaders

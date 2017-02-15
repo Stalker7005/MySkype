@@ -16,7 +16,6 @@
 
 #include "NetworkMessage.h"
 #include "Serializer.h"
-#include "RunningContext.h"
 #include "Session.h"
 
 namespace Network {

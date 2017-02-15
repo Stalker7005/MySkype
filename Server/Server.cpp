@@ -18,7 +18,8 @@
 #include "Serializer.h"
 #include "TCPSession.h"
 #include "Logger.h"
-
+namespace ServerManagment 
+{
 Server::Server(boost::asio::io_service& ioService, const boost::asio::ip::tcp::endpoint& endpoint) :
     m_acceptor(ioService, endpoint),
     m_ioService(ioService)
@@ -44,6 +45,8 @@ void Server::DoAccept()
         DoAccept();
     });
 }
+}
+
 
 
 int main(int argc, char* argv[])
@@ -60,7 +63,7 @@ int main(int argc, char* argv[])
 
         boost::asio::io_service io_service;
 
-        std::list<Server> servers;
+        std::list<ServerManagment::Server> servers;
         for (int i = 1; i < argc; ++i)
         {
             boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), std::atoi(argv[i]));

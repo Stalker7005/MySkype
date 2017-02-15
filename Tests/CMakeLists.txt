@@ -14,6 +14,7 @@ add_executable(${PROJECT_NAME} ${TestsHeaders} ${TestsSources})
 include_directories(
                     ${Boost_INCLUDE_DIRS}
                     ${LOG4CPLUS_INCLUDE}
+                    ../ThreadsUtilsLib
                     ../ODBCHelperLib
                     ../BaseObjects
                     ../SerializationLib
@@ -24,6 +25,7 @@ include_directories(
 target_link_libraries(
 					  ${PROJECT_NAME} 
                       ${Boost_LIBRARIES}
+                      ThreadsUtilsLib
 					  ODBCHelperLib
                       SerializationLib
                       BaseObjects

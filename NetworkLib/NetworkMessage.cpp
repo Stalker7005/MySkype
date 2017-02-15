@@ -1,6 +1,6 @@
 #include "NetworkMessage.h"
-#include "Ping.h"
-#include "Pong.h"
+#include "PingMessage.h"
+#include "PongMessage.h"
 #include "Header.h"
 
 namespace Network {
@@ -14,10 +14,10 @@ std::shared_ptr<NetworkMessage> NetworkMessage::Create(MessageType type)
         message = std::make_shared<NetworkMessage>();
         break;
     case MessageType::PING:
-        message = std::make_shared<Ping>();
+        message = std::make_shared<PingMessage>();
         break;
     case MessageType::PONG:
-        message = std::make_shared<Pong>();
+        message = std::make_shared<PongMessage>();
         break;
     case MessageType::TEXT:
         break;
@@ -44,12 +44,12 @@ std::uint8_t NetworkMessage::GetHeaderSize()
 
 void NetworkMessage::SetMessageSize(std::uint64_t size)
 {
-    m_size = size + NetworkMessage::GetHeaderSize();
+    m_size = size;
 }
 
 std::uint64_t NetworkMessage::GetMessageSize() const
 {
-    return m_size;
+    return m_size == 0 ? GetSizeInternal() : m_size;
 }
 
 Network::MessageType NetworkMessage::GetType() const
@@ -58,23 +58,19 @@ Network::MessageType NetworkMessage::GetType() const
 }
 
 NetworkMessage::NetworkMessage(MessageType type)
-: NetworkMessage{type, 0}
+: m_type(type)
 {
 }
 
 NetworkMessage::NetworkMessage()
-: NetworkMessage{MessageType::BASE, 0}
+: NetworkMessage{MessageType::BASE}
 {
 }
 
-NetworkMessage::NetworkMessage(MessageType type, TMessageSize size)
-: m_type(type),
-m_size(size + NetworkMessage::GetHeaderSize())
-{}
-
 void NetworkMessage::Serialize(SerializerBase& serializer) const
 {
-    serializer.Add(m_size).Add(m_type);
+    auto size = m_size == 0 ? GetSizeInternal() : m_size;
+    serializer.Add(size).Add(m_type);
 }
 
 void NetworkMessage::Deserialize(DeserializerBase& deserializer)

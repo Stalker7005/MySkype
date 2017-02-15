@@ -3,9 +3,11 @@ cmake_minimum_required(VERSION 2.6)
 
 set(ServerHeaders
 	Server.h
+    UsersManager.h
 	)
 set(ServerSources
 	Server.cpp
+    UsersManager.cpp
 	)
 	
 add_executable(${PROJECT_NAME} ${ServerHeaders} ${ServerSources})
@@ -16,6 +18,8 @@ source_group("Server\\Sources" FILES ${ServerSources})
 include_directories(
 					${Boost_INCLUDE_DIRS}
                     ${LOG4CPLUS_INCLUDE}
+                    ../ServerObjects
+                    ../ODBCHelperLib
 					../NetworkLib
                     ../SerializationLib
                     ../ThreadsUtilsLib
@@ -25,6 +29,8 @@ include_directories(
 target_link_libraries(${PROJECT_NAME} 
 					  ${Boost_LIBRARIES}
 					  ${LOG4CPLUS_LIB_DIRS} 
+                      ServerObjects
+                      ODBCHelperLib
 					  NetworkLib
                       SerializationLib
                       ThreadsUtilsLib
