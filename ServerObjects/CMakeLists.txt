@@ -4,12 +4,12 @@ project(ServerObjects)
 set(EntitiesHeaders
     IBaseEntity.h
     IEntitiesVisitor.h
-    User.h
+    Client.h
     UsersGroup.h
     EntitiesDefs.h
     )   
 set(EntitiesSources
-    User.cpp
+    Client.cpp
     UsersGroup.cpp
     )
 

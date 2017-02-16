@@ -14,5 +14,10 @@ void PingMessage::Deserialize(DeserializerBase& deserializer)
     NetworkMessage::Deserialize(deserializer);
 }
 
+std::uint64_t PingMessage::GetSizeInternal() const
+{
+    return 0;
+}
+
 }
 

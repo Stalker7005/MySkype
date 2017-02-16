@@ -31,6 +31,7 @@ public:
 protected:
     void Serialize(SerializerBase& serializer) const override;
     void Deserialize(DeserializerBase& deserializer) override;
+    std::uint64_t GetSizeInternal() const override;
 
 private:
     std::wstring m_firstName;

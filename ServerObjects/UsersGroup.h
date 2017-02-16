@@ -7,13 +7,13 @@
 #include "CommonDefs.h"
 
 namespace Entities {
-class User;
+class Client;
 
 class UsersGroup: public IBaseEntity,
                   public std::enable_shared_from_this<UsersGroup>
 {
 public:
-    using TUser = std::shared_ptr<User>;
+    using TUser = std::shared_ptr<Client>;
     using TUsersGroup = std::vector<TUser>;
 
 public:

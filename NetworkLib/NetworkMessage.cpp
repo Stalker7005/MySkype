@@ -1,6 +1,8 @@
 #include "NetworkMessage.h"
 #include "PingMessage.h"
 #include "PongMessage.h"
+#include "ClientRegistrationMessage.h"
+#include "ClientManagmentMessage.h"
 #include "Header.h"
 
 namespace Network {
@@ -18,6 +20,12 @@ std::shared_ptr<NetworkMessage> NetworkMessage::Create(MessageType type)
         break;
     case MessageType::PONG:
         message = std::make_shared<PongMessage>();
+        break;
+    case MessageType::REGISTRATION:
+        message = std::make_shared<ClientRegistrationMessage>();
+        break;
+    case MessageType::LOGIN:
+        message = std::make_shared<ClientManagmentMessage>();
         break;
     case MessageType::TEXT:
         break;
@@ -58,7 +66,8 @@ Network::MessageType NetworkMessage::GetType() const
 }
 
 NetworkMessage::NetworkMessage(MessageType type)
-: m_type(type)
+: m_type(type),
+m_size(0)
 {
 }
 
@@ -76,6 +85,11 @@ void NetworkMessage::Serialize(SerializerBase& serializer) const
 void NetworkMessage::Deserialize(DeserializerBase& deserializer)
 {
     deserializer.Get(m_size).Get(m_type);
+}
+
+std::uint64_t NetworkMessage::GetSizeInternal() const
+{
+    return NetworkMessage::GetHeaderSize();
 }
 
 }

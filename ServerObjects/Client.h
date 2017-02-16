@@ -8,8 +8,8 @@
 #include "CommonDefs.h"
 
 namespace Entities {
-class User: public IBaseEntity,
-            public std::enable_shared_from_this<User>
+class Client: public IBaseEntity,
+            public std::enable_shared_from_this<Client>
 {
 public:
     enum class UserState
@@ -19,8 +19,8 @@ public:
     };
 
 public:
-    User();
-    ~User() = default;
+    Client();
+    ~Client() = default;
     
 public:
     void SetFirstName(const std::wstring& firstName);

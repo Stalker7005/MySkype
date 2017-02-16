@@ -3,17 +3,28 @@
 #include <string>
 
 namespace Network {
-class ClientLoginMessage: public NetworkMessage
+class ClientManagmentMessage: public NetworkMessage
 {
 public:
-    ClientLoginMessage();
-    ~ClientLoginMessage();
+    enum class Type: std::uint8_t
+    {
+        Login,
+        Logout,
+        Remove
+    };
+
+public:
+    ClientManagmentMessage();
+    ~ClientManagmentMessage();
 
 public:
     void SetPassword(const std::wstring& password);
     std::wstring GetPassword() const;
-    void SetLoginName(const std::wstring& loginName);
-    std::wstring GetLoginName() const;
+    void SetClientName(const std::wstring& loginName);
+    std::wstring GetClientName() const;
+
+    void SetManagmentType(Type type);
+    Type GetManagmentType() const;
 
 protected:
     void Serialize(SerializerBase& serializer) const override;
@@ -23,6 +34,7 @@ protected:
 private:
     std::wstring m_loginName;
     std::wstring m_password;
+    Type m_type;
 };
 }
 

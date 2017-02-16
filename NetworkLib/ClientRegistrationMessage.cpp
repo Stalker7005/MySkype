@@ -71,11 +71,20 @@ std::vector<TGroupTag> ClientRegistrationMessage::GetGroupsTags() const
 void ClientRegistrationMessage::Serialize(SerializerBase& serializer) const
 {
     NetworkMessage::Serialize(serializer);
+
+    serializer.Add(m_firstName).Add(m_secondName).Add(m_age).Add(m_password).Add(m_loginName);
 }
 
 void ClientRegistrationMessage::Deserialize(DeserializerBase& deserializer)
 {
-    
+    NetworkMessage::Deserialize(deserializer);
+
+    deserializer.Get(m_firstName).Get(m_secondName).Get(m_age).Get(m_password).Get(m_loginName);
+}
+
+std::uint64_t ClientRegistrationMessage::GetSizeInternal() const
+{
+    return m_firstName.size() + m_secondName.size() + m_age + m_password.size() + m_loginName.size();
 }
 
 }

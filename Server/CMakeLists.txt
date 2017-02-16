@@ -3,11 +3,13 @@ cmake_minimum_required(VERSION 2.6)
 
 set(ServerHeaders
 	Server.h
-    UsersManager.h
+    ClientsManager.h
+    DBClientsManagmentHelper.h
 	)
 set(ServerSources
 	Server.cpp
-    UsersManager.cpp
+    ClientsManager.cpp
+    DBClientsManagmentHelper.cpp
 	)
 	
 add_executable(${PROJECT_NAME} ${ServerHeaders} ${ServerSources})

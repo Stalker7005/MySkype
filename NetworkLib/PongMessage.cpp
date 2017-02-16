@@ -17,7 +17,7 @@ void PongMessage::Deserialize(DeserializerBase& deserializer)
 
 std::uint64_t PongMessage::GetSizeInternal() const
 {
-    
+    return 0;
 }
 
 }

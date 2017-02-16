@@ -3,20 +3,20 @@ cmake_minimum_required(VERSION 3.0)
 
 set(MessagesHeaders
     NetworkMessage.h
-    Ping.h
-    Pong.h
-    ClientRegistration.h
+    PingMessage.h
+    PongMessage.h
+    ClientRegistrationMessage.h
     Header.h
-    ClientLoginMessage.h
+    ClientManagmentMessage.h
 	)
 	
 set(MessagesSources
     NetworkMessage.cpp
-    Ping.cpp
-    Pong.cpp
-    ClientRegistration.cpp
+    PingMessage.cpp
+    PongMessage.cpp
+    ClientRegistrationMessage.cpp
     Header.cpp
-    ClientLoginMessage.cpp
+    ClientManagmentMessage.cpp
 	)
 	
 set(NetworkDefsHeaders

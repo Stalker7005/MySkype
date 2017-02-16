@@ -34,7 +34,7 @@ protected:
     void Serialize(SerializerBase& serializer) const override;
     void Deserialize(DeserializerBase& deserializer) override;
     
-    virtual std::uint64_t GetSizeInternal() const = 0;
+    virtual std::uint64_t GetSizeInternal() const;
 
 private:
     std::uint64_t m_size;
