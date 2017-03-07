@@ -69,4 +69,5 @@ add_subdirectory(ThreadsUtilsLib)
 add_subdirectory(Client)
 add_subdirectory(Server)
 add_subdirectory(NetworkLib)
+add_subdirectory(XMLLib)
 

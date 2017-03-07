@@ -5,11 +5,13 @@ set(ServerHeaders
 	Server.h
     ClientsManager.h
     DBClientsManagmentHelper.h
+    DBClientsManagmentConfig.h
 	)
 set(ServerSources
 	Server.cpp
     ClientsManager.cpp
     DBClientsManagmentHelper.cpp
+    DBClientsManagmentConfig.cpp
 	)
 	
 add_executable(${PROJECT_NAME} ${ServerHeaders} ${ServerSources})
