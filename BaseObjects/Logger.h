@@ -9,6 +9,7 @@
 #include <log4cplus/logger.h>
 #include <log4cplus/loggingmacros.h>
 #include <log4cplus/layout.h>
+#include <mutex>
 
 class Logger
 {
@@ -41,7 +42,7 @@ private:
     std::unique_ptr<char[]> m_buffer;
     std::uint64_t m_bufSize;
     std::wstring m_loggerName;
-
+    std::once_flag m_initLoggerFlag;
 private:
     static const std::string Pattern;
     static const std::uint32_t LogSize;

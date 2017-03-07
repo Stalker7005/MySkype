@@ -7,13 +7,14 @@ bool DBClientsManagmentHelper::CreateDB()
 {
     if (m_config)
     {
-        m_databaseHelper->Execute();
+        //m_databaseHelper->Execute();
     }
+    return false;
 }
 
 bool DBClientsManagmentHelper::CreateTable()
 {
-
+    return false;
 }
 
 DBClientsManagmentHelper::DBClientsManagmentHelper()

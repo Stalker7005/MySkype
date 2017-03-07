@@ -23,39 +23,39 @@ Logger& Logger::GetIntance()
 
 void Logger::Init(const std::wstring& fileName /*= L""*/)
 {
-    std::lock_guard<std::mutex> initGuard(m_logMutex);
+    std::call_once(m_initLoggerFlag, [this, fileName] {
+        auto executablePath = ProcessUtils::GetExecutablePath();
+        auto logFileName = std::wstring();
 
-    auto executablePath = ProcessUtils::GetExecutablePath();
-    auto logFileName = std::wstring();
+        if (fileName.empty())
+        {
+            logFileName = ProcessUtils::GetExecutableName(executablePath);
+        }
+        else
+        {
+            logFileName = fileName;
+        }
 
-    if (fileName.empty())
-    {
-        logFileName = ProcessUtils::GetExecutableName(executablePath);
-    }
-    else
-    {
-        logFileName = fileName;
-    }
+        logFileName += L".log";
 
-    logFileName += L".log";
+        auto executableFolderPath = ProcessUtils::GetExecutableFolderPath(executablePath);
+        auto pathLogFolder = executableFolderPath / ProcessUtils::GetLoggerFolder();
+        FileUtils::CreateFolder(pathLogFolder);
+        auto fullLogPath = pathLogFolder / logFileName;
 
-    auto executableFolderPath = ProcessUtils::GetExecutableFolderPath(executablePath);
-    auto pathLogFolder = executableFolderPath / ProcessUtils::GetLoggerFolder();
-    FileUtils::CreateFolder(pathLogFolder);
-    auto fullLogPath = pathLogFolder / logFileName;
+        m_isInited = true;
 
-    m_isInited = true;
+        log4cplus::initialize();
+        log4cplus::helpers::SharedObjectPtr<log4cplus::Appender>
+            appender(new log4cplus::RollingFileAppender(LOG4CPLUS_STRING_TO_TSTRING(fullLogPath.wstring()), LogSize, 5));
 
-    log4cplus::initialize();
-    log4cplus::helpers::SharedObjectPtr<log4cplus::Appender>
-        appender(new log4cplus::RollingFileAppender(LOG4CPLUS_STRING_TO_TSTRING(fullLogPath.wstring()), LogSize, 5));
+        appender->setName(LOG4CPLUS_C_STR_TO_TSTRING("LoggerAppender"));
 
-    appender->setName(LOG4CPLUS_C_STR_TO_TSTRING("LoggerAppender"));
-    
-    std::auto_ptr<log4cplus::Layout> layout(new log4cplus::PatternLayout(LOG4CPLUS_STRING_TO_TSTRING(Pattern)));
-    appender->setLayout(layout);
-    auto rootLogger = log4cplus::Logger::getRoot();
-    rootLogger.addAppender(appender);
+        std::auto_ptr<log4cplus::Layout> layout(new log4cplus::PatternLayout(LOG4CPLUS_STRING_TO_TSTRING(Pattern)));
+        appender->setLayout(layout);
+        auto rootLogger = log4cplus::Logger::getRoot();
+        rootLogger.addAppender(appender);
+    });
 }
 
 void Logger::Log(Type type, std::int64_t line, const char* functionName, const char* format, ...)
