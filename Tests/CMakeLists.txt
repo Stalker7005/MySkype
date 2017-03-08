@@ -7,6 +7,7 @@ set(TestsSources
 	DummyTest.cpp
     ODBCHelperTest.cpp
     SerializationTest.cpp
+    LoggerTest.cpp
 	)
 	
 add_executable(${PROJECT_NAME} ${TestsHeaders} ${TestsSources})
