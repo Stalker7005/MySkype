@@ -8,6 +8,7 @@ set(TestsSources
     ODBCHelperTest.cpp
     SerializationTest.cpp
     LoggerTest.cpp
+    XMLTest.cpp
 	)
 	
 add_executable(${PROJECT_NAME} ${TestsHeaders} ${TestsSources})
@@ -20,6 +21,7 @@ include_directories(
                     ../BaseObjects
                     ../SerializationLib
                     ../NetworkLib
+                    ../XMLLib
                     ..
 					.)
 
@@ -31,6 +33,7 @@ target_link_libraries(
                       SerializationLib
                       BaseObjects
                       NetworkLib
+                      XMLLib
 					  )
 
 

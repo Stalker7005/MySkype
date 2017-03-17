@@ -4,11 +4,12 @@
 #include <string>
 #include <chrono>
 #include <thread>
+#include <future>
 #include "Logger.h"
 
 void LogInitThread()
 {
-    LOG_INIT(L"Test.log", true, Logger::LogLevel::Debug);
+    LOG_INIT(L"Test.log", true, Logger::LogLevel::ALL);
 
     for (int i = 0; i < 100000; ++i)
     {
@@ -25,7 +26,7 @@ TEST_CASE("LoggerTest")
         using namespace std::chrono_literals;
         /*for (int i = 0; i < 10; ++i)
         {*/
-            std::thread t1(&LogInitThread);
+            auto t1 = std::async(std::launch::deferred, &LogInitThread);
             //std::thread t2(&LogInitThread);
             //std::thread t3(&LogInitThread);
             //std::thread t4(&LogInitThread);
@@ -34,8 +35,7 @@ TEST_CASE("LoggerTest")
             //std::thread t7(&LogInitThread);
 
             std::this_thread::sleep_for(100ms);
-
-            t1.join();
+            //t1.get();
             //t2.join();
             //t3.join();
             //t4.join();

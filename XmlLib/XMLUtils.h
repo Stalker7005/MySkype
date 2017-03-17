@@ -5,9 +5,21 @@ namespace XML {
 class XMLUtils
 {
 public:
-    XMLUtils()
+    XMLUtils(const XMLUtils& xmlUtils) = delete;
+    XMLUtils& operator=(const XMLUtils& xmlUtils) = delete;
+
+public:
+    static XMLUtils& GetIntance()
     {
-        tinyxml2::XMLDocument doc;
+        static XMLUtils xml;
+
+        return xml;
     }
+    
+private:
+    XMLUtils();
+    ~XMLUtils() = default;
 };
+
+#define XMLUTILS XMLUtils::GetInstance()
 }
