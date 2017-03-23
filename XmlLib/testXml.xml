@@ -1,3 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document>
-</document>
+<ParentNode>
+	<TestString>Hello World</TestString>
+</ParentNode>
+<ParentNode2>
+	<ChildNode>
+		<ChildNode2>Yes</ChildNode2>
+	</ChildNode>
+</ParentNode>

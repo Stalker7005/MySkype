@@ -1,11 +1,14 @@
 #include "XMLDocument.h"
 #include "Logger.h"
+#include <string.h>
+#include <queue>
+#include "XMLBSFFindStrategy.h"
 
 namespace XML {
 
 XMLDocument::XMLDocument()
 {
-
+    SetFindStrategy(std::make_unique<XMLBSFFindStrategy>());
 }
 
 XMLDocument::~XMLDocument()
@@ -61,6 +64,26 @@ bool XMLDocument::Parse(const std::string& text)
     }
 
     return result;
+}
+
+std::shared_ptr<XMLElement> XMLDocument::FindElement(const std::string& name)
+{
+    return m_findStrategy->FindElement(m_xmlDoc.RootElement(), name);
+}
+
+std::shared_ptr<XMLElement> XMLDocument::FindElement(const std::shared_ptr<XMLElement>& element, const std::string& name)
+{
+    return m_findStrategy->FindElement(element->GetNative(), name);
+}
+
+void XMLDocument::SetFindStrategy(std::unique_ptr<XMLFindStrategy> strategy)
+{
+    m_findStrategy = std::move(strategy);
+}
+
+tinyxml2::XMLDocument* XMLDocument::GetNative()
+{
+    return &m_xmlDoc;
 }
 
 bool XMLDocument::Validate(tinyxml2::XMLError error)
